@@ -8,7 +8,7 @@
 #include <chrono>
 #include <locale>
 //#include <Windows.h> /// !!!
-#include <conio.h>
+//#include <conio.h>
 
 using namespace std;
 
@@ -43,6 +43,8 @@ string coords = "";
 /// system variables
 
 struct tm* system_time;
+
+auto wdtTimeout = 5000 * (CLOCKS_PER_SEC/1000);
 clock_t wdtMain; //in ms
 clock_t wdtSim;
 
@@ -152,34 +154,35 @@ void Watchdog(void)
 {
     while(true)
     {
-        if(clock() > wdtMain+5000)
+        if(clock() > wdtMain+wdtTimeout)
         {
             cout << endl << "[!] Main thread watchdog expired. System stop." << endl;
-            exit(-10);
+            cout << wdtMain << endl;
+            exit(10);
         }
-        if((clock() > wdtSim+5000) && simRunning)
+        if((clock() > wdtSim+wdtTimeout) && simRunning)
         {
             cout << endl << "[!] Simulator thread watchdog expired. System stop." << endl;
             cout << clock() << " vs " << wdtSim ;
-            exit(-10);
+            exit(11);
         }
     }
 }
 
 void atExitFunc()
 {
-    cout << "//";
+    cout << "////";
 }
 
 
-void getClock(void)
+void getSysClock(void)
 {
     time_t clock = chrono::system_clock::to_time_t(chrono::system_clock::now());
     system_time = localtime(&clock);
     return;
 }
 
-string frmtime()
+string formtime()
 {
     char buff[16];
     snprintf(buff, sizeof(buff), "%02d:%02d:%02d", system_time->tm_hour, system_time->tm_min, system_time->tm_sec);
@@ -191,7 +194,7 @@ void report(bool brief = false)
 {
     if(brief)
     {
-        cout << "* " << frmtime() << "\t" << voltage << "V    " << charged << "%  of  " << target_charge << "%    (" << charging_time << " / " << remaining_time << ") \t" << approach << "km" << endl;  /// time to string
+        cout << "* " << formtime() << "\t" << voltage << "V    " << charged << "%  of  " << target_charge << "%    (" << charging_time << " / " << remaining_time << ") \t" << approach << "km" << endl;  /// time to string
 
     }
 
@@ -320,7 +323,9 @@ int main()
     //system_time = chrono::system_clock::to_time_t(chrono::system_clock::now());
     //cout << ctime(&system_clock) << endl;
 
-    cout << "[i] cpu_cores: " << std::thread::hardware_concurrency() << endl;;
+    cout << "[i] cpu_cores: " << std::thread::hardware_concurrency() << endl;
+    cout << "clock: " << clock() << endl;
+    cout << "clockpersec: " << CLOCKS_PER_SEC << endl;
 
     initVehicle(Demo) ? printf("[!] Vehicle initialisation failed. \n") : 0;
 
@@ -341,7 +346,7 @@ int main()
     cout << "[i] Entering main loop." << endl << endl;
     while(1)
     {
-        getClock();
+        getSysClock();
         //cout << "aa" << endl;
 /*
         if(c=_getch())
