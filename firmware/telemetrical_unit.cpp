@@ -7,12 +7,22 @@
 #include <ctime>
 #include <chrono>
 #include <locale>
-//#include <Windows.h> /// !!!
-//#include <conio.h>
+
+#include "serialib.h"
 
 using namespace std;
 
-#define csleep(x) std::this_thread::sleep_for(std::chrono::seconds(x))
+#define mysleep(x) std::this_thread::sleep_for(std::chrono::seconds(x))
+
+#if defined (_WIN32) || defined(_WIN64)
+    #define SERIAL_PORT "COM6"
+#endif
+#ifdef __linux__
+    #define SERIAL_PORT "/dev/ttyS0"
+#endif
+
+
+/// global variables
 
 enum Conf {Empty, Demo, Load};
 enum VehicleType {Null, Fuel, Electric, Hybrid, AlternativeFuel};
@@ -29,7 +39,7 @@ struct Vehicle
     uint16_t factoryCapacity;
 } vehicle;
 
-State state;
+State state;    //vehicle state
 float charged, target_charge;
 float voltage, max_voltage, current, max_current;
 uint16_t charging_time, remaining_time;
@@ -40,7 +50,10 @@ uint16_t approach;
 float fuel_weight, fuel_consumption, elec_consumption, elgas_ratio;
 string coords = "";
 
-/// system variables
+
+// system variables
+
+serialib serial;
 
 struct tm* system_time;
 
@@ -50,7 +63,16 @@ clock_t wdtSim;
 
 bool simRunning;
 
-////////
+
+
+/// function declarations
+
+string time(void);
+int broadcast(void);
+
+
+/// /////////////////////
+/// simulator functions
 
 int initVehicle(Conf C = Empty)
 {
@@ -113,7 +135,6 @@ int initVehicle(Conf C = Empty)
     return 0;
 }
 
-
 void setPreferencies()
 {
     target_charge = 100;
@@ -121,7 +142,7 @@ void setPreferencies()
     max_current = 50.0;
     desired_temp = 20.0;    ///default?
 
-    cout << "[i] User preferencies set up." << endl;
+    cout << "[i] User preferences set up." << endl;
 }
 
 void sim_EarlyData()
@@ -149,52 +170,11 @@ uint16_t calcActualCapacity()
     return 0;
 }
 
-
-void Watchdog(void)
-{
-    while(true)
-    {
-        if(clock() > wdtMain+wdtTimeout)
-        {
-            cout << endl << "[!] Main thread watchdog expired. System stop." << endl;
-            cout << wdtMain << endl;
-            exit(10);
-        }
-        if((clock() > wdtSim+wdtTimeout) && simRunning)
-        {
-            cout << endl << "[!] Simulator thread watchdog expired. System stop." << endl;
-            cout << clock() << " vs " << wdtSim ;
-            exit(11);
-        }
-    }
-}
-
-void atExitFunc()
-{
-    cout << "////";
-}
-
-
-void getSysClock(void)
-{
-    time_t clock = chrono::system_clock::to_time_t(chrono::system_clock::now());
-    system_time = localtime(&clock);
-    return;
-}
-
-string formtime()
-{
-    char buff[16];
-    snprintf(buff, sizeof(buff), "%02d:%02d:%02d", system_time->tm_hour, system_time->tm_min, system_time->tm_sec);
-
-    return buff;
-}
-
 void report(bool brief = false)
 {
     if(brief)
     {
-        cout << "* " << formtime() << "\t" << voltage << "V    " << charged << "%  of  " << target_charge << "%    (" << charging_time << " / " << remaining_time << ") \t" << approach << "km" << endl;  /// time to string
+        cout << "* " << time() << "\t" << voltage << "V    " << charged << "%  of  " << target_charge << "%    (" << charging_time << " / " << remaining_time << ") \t" << approach << "km" << endl;  /// time to string
 
     }
 
@@ -299,21 +279,71 @@ void Simulator(void)
 
 
         wdtSim = clock();
-        csleep(1);
+        mysleep(1);
     }
 }
 
-/// /////////////////////////////////////////////////////////////////////////////////////////////////// ///
+
+/// //////////////////
+/// system functions
+
+void Watchdog(void)
+{
+    while(true)
+    {
+        if(clock() > wdtMain+wdtTimeout)
+        {
+            cout << endl << "[!] Main thread watchdog expired. System stop." << endl;
+            cout << wdtMain << endl;
+            exit(10);
+        }
+        if((clock() > wdtSim+wdtTimeout) && simRunning)
+        {
+            cout << endl << "[!] Simulator thread watchdog expired. System stop." << endl;
+            cout << clock() << " vs " << wdtSim ;
+            exit(11);
+        }
+    }
+}
+
+void atExitFunc()
+{
+    serial.closeDevice();
+    cout << "////";
+}
+
+void getSysClock(void)
+{
+    time_t clock = chrono::system_clock::to_time_t(chrono::system_clock::now());
+    system_time = localtime(&clock);
+    return;
+}
+
+string time(void)
+{
+    char buff[16];
+    snprintf(buff, sizeof(buff), "%02d:%02d:%02d", system_time->tm_hour, system_time->tm_min, system_time->tm_sec);
+
+    return buff;
+}
+
+int broadcast(void)
+{
+
+    //serial.writeBytes(message,4);
+    return 0;
+}
+
+
+/// //////////////////////////////////////////////////////////////////////////////////////////////////////
+/// main
 
 int main()
 {
     cout << "*init \n";
     std::this_thread::sleep_for(500ms);
 
-    //calcCharge();
-    //return 0;
-
-    setlocale(LC_ALL, "");
+    setlocale(LC_ALL, "");  //funguje na linuxe?
     atexit(atExitFunc);
     wdtMain = 0, wdtSim = 0;
     simRunning = false;
@@ -324,10 +354,12 @@ int main()
     //cout << ctime(&system_clock) << endl;
 
     cout << "[i] cpu_cores: " << std::thread::hardware_concurrency() << endl;
-    cout << "clock: " << clock() << endl;
-    cout << "clockpersec: " << CLOCKS_PER_SEC << endl;
 
-    initVehicle(Demo) ? printf("[!] Vehicle initialisation failed. \n") : 0;
+    /// init setial port
+    serial.openDevice(SERIAL_PORT, 9600) ? 0 : printf("[!] Serial port initialization failed. \n");
+
+    /// init vehicle data
+    initVehicle(Demo) ? printf("[!] Vehicle initialization failed. \n") : 0;
 
     printf("\n");
     printf(" %s \n %s \n %s \n %s \n %d \n\n", vehicle.vendor.c_str(), vehicle.model.c_str(), vehicle.VIN.c_str(), vehicle.registrationPlate.c_str(), vehicle.yearManufactured);
@@ -344,9 +376,10 @@ int main()
     setState(Charging, 300, 80);
 
     cout << "[i] Entering main loop." << endl << endl;
-    while(1)
+    while(true)
     {
         getSysClock();
+        serial.writeString("skuska");
         //cout << "aa" << endl;
 /*
         if(c=_getch())
@@ -359,7 +392,7 @@ int main()
 
         if(!(i%5)) report();
 
-        csleep(1);
+        mysleep(1);
         i++;
         wdtMain = clock();
     }
