@@ -1,30 +1,29 @@
 //SigFox message max payload length = 12 bytes
 
-eCar -> Sigfox Communucation format
+* eCar -> Sigfox Communucation format *
 
 
 Regular message content:
 
-attributes:			length:			orig type:		unit:
---------------------------------------------------------------
-- state				(3 bits)		enum			-
-- current charge	(7 bits)		float			perc
-- target charge		(7 bits)		float			perc
-- current			(10 bits)		float			amps
-- elapsed time		(13 bits)		uint16_t		mins
-- remain time		(13 bits)		uint16_t		mins
-- current range		(11 bits)		uint16_t		km
-- elec consumption	(16 bits)		half		    kWh/100km
-- ins. temperature	(16 bits)		half			°C
-					---------
-				 	 96 bits
-				 	=12 bytes
-
+attributes:		length:		orig type:		unit:
+--------------------------------------------------------------------------
+- state			(3 bits)	enum			-
+- current charge	(7 bits)	float			perc
+- target charge		(7 bits)	float			perc
+- current		(10 bits)	float			amps
+- elapsed time		(13 bits)	uint16_t		mins
+- remain time		(13 bits)	uint16_t		mins
+- current range		(11 bits)	uint16_t		km
+- elec consumption	(16 bits)	half			kWh/100km
+- ins. temperature	(16 bits)	half			°C
+			---------
+			 96 bits
+			=12 bytes
 
 Datagram format:
 
 byte	bit	attribute
--------------------------
+-------------------------------
 1	1	state
 	2	state
 	3	state
@@ -33,7 +32,7 @@ byte	bit	attribute
 	6	current charge
 	7	current charge
 	8	current charge
----------
+------------
 2	9	current charge
 	10	current charge
 	11	target charge
@@ -42,7 +41,7 @@ byte	bit	attribute
 	14	target charge
 	15	target charge
 	16	target charge
----------
+------------
 3	17	target charge
 	18	current
 	19	current
@@ -51,7 +50,7 @@ byte	bit	attribute
 	22	current
 	23	current
 	24	current
----------
+------------
 4	25	current
 	26	current
 	27	current
@@ -60,7 +59,7 @@ byte	bit	attribute
 	30	elapsed time
 	31	elapsed time
 	32	elapsed time
----------
+------------
 5	33	elapsed time
 	34	elapsed time
 	35	elapsed time
@@ -69,7 +68,7 @@ byte	bit	attribute
 	38	elapsed time
 	39	elapsed time
 	40	elapsed time
----------
+------------
 6	41	remain time
 	42	remain time
 	43	remain time
@@ -78,7 +77,7 @@ byte	bit	attribute
 	46	remain time
 	47	remain time
 	48	remain time
----------
+------------
 7	49	remain time
 	50	remain time
 	51	remain time
@@ -87,7 +86,7 @@ byte	bit	attribute
 	54	range
 	55	range
 	56	range
----------
+------------
 8	57	range
 	58	range
 	59	range
@@ -96,7 +95,7 @@ byte	bit	attribute
 	62	range
 	63	range
 	64	range
----------
+------------
 9	65	consumption
 	66	consumption
 	67	consumption
@@ -105,7 +104,7 @@ byte	bit	attribute
 	70	consumption
 	71	consumption
 	72	consumption
----------
+------------
 10	73	consumption
 	74	consumption
 	75	consumption
@@ -114,7 +113,7 @@ byte	bit	attribute
 	78	consumption
 	79	consumption
 	80	consumption
----------
+------------
 11	81	temperature
 	82	temperature
 	83	temperature
@@ -123,7 +122,7 @@ byte	bit	attribute
 	86	temperature
 	87	temperature
 	88	temperature
----------
+------------
 12	89	temperature
 	90	temperature
 	91	temperature
@@ -132,4 +131,5 @@ byte	bit	attribute
 	94	temperature
 	95	temperature
 	96	temperature
--------------------------
+-------------------------------
+

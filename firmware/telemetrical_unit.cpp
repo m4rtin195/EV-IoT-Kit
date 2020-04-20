@@ -395,7 +395,7 @@ int broadcast(void)
 
 
     status = serial.writeBytes(message,12);
-    exit(0);
+    //exit(0);
     return 0; //status;
 }
 
@@ -408,10 +408,6 @@ int main()
     broadcast();
     cout << "*init \n";
     std::this_thread::sleep_for(500ms);
-
-    half temp(26.3);
-    printf("%d", temp);
-    return 0;
 
     setlocale(LC_ALL, "");  //funguje na linuxe?
     atexit(atExitFunc);

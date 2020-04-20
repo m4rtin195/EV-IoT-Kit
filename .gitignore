@@ -1,0 +1,6 @@
+*.o
+*.exe
+*.layout
+*.o
+*.depend
+firmware/main.cpp
