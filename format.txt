@@ -1,0 +1,135 @@
+//SigFox message max payload length = 12 bytes
+
+eCar -> Sigfox Communucation format
+
+
+Regular message content:
+
+attributes:			length:			orig type:		unit:
+--------------------------------------------------------------
+- state				(3 bits)		enum			-
+- current charge	(7 bits)		float			perc
+- target charge		(7 bits)		float			perc
+- current			(10 bits)		float			amps
+- elapsed time		(13 bits)		uint16_t		mins
+- remain time		(13 bits)		uint16_t		mins
+- current range		(11 bits)		uint16_t		km
+- elec consumption	(16 bits)		half		    kWh/100km
+- ins. temperature	(16 bits)		half			°C
+					---------
+				 	 96 bits
+				 	=12 bytes
+
+
+Datagram format:
+
+byte	bit	attribute
+-------------------------
+1	1	state
+	2	state
+	3	state
+	4	current charge
+	5	current charge
+	6	current charge
+	7	current charge
+	8	current charge
+---------
+2	9	current charge
+	10	current charge
+	11	target charge
+	12	target charge
+	13	target charge
+	14	target charge
+	15	target charge
+	16	target charge
+---------
+3	17	target charge
+	18	current
+	19	current
+	20	current
+	21	current
+	22	current
+	23	current
+	24	current
+---------
+4	25	current
+	26	current
+	27	current
+	28	elapsed time
+	29	elapsed time
+	30	elapsed time
+	31	elapsed time
+	32	elapsed time
+---------
+5	33	elapsed time
+	34	elapsed time
+	35	elapsed time
+	36	elapsed time
+	37	elapsed time
+	38	elapsed time
+	39	elapsed time
+	40	elapsed time
+---------
+6	41	remain time
+	42	remain time
+	43	remain time
+	44	remain time
+	45	remain time
+	46	remain time
+	47	remain time
+	48	remain time
+---------
+7	49	remain time
+	50	remain time
+	51	remain time
+	52	remain time
+	53	remain time
+	54	range
+	55	range
+	56	range
+---------
+8	57	range
+	58	range
+	59	range
+	60	range
+	61	range
+	62	range
+	63	range
+	64	range
+---------
+9	65	consumption
+	66	consumption
+	67	consumption
+	68	consumption
+	69	consumption
+	70	consumption
+	71	consumption
+	72	consumption
+---------
+10	73	consumption
+	74	consumption
+	75	consumption
+	76	consumption
+	77	consumption
+	78	consumption
+	79	consumption
+	80	consumption
+---------
+11	81	temperature
+	82	temperature
+	83	temperature
+	84	temperature
+	85	temperature
+	86	temperature
+	87	temperature
+	88	temperature
+---------
+12	89	temperature
+	90	temperature
+	91	temperature
+	92	temperature
+	93	temperature
+	94	temperature
+	95	temperature
+	96	temperature
+-------------------------

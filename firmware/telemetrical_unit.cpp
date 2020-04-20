@@ -9,8 +9,14 @@
 #include <locale>
 
 #include "serialib.h"
+#include "half.hpp"
 
 using namespace std;
+//using half_float::half;
+using namespace half_float;
+using namespace half_float::literal;
+
+typedef uint8_t byte;
 
 #define mysleep(x) std::this_thread::sleep_for(std::chrono::seconds(x))
 
@@ -20,6 +26,8 @@ using namespace std;
 #ifdef __linux__
     #define SERIAL_PORT "/dev/ttyS0"
 #endif
+
+#pragma GCC diagnostic ignored "-Wformat"
 
 
 /// global variables
@@ -42,7 +50,8 @@ struct Vehicle
 State state;    //vehicle state
 float charged, target_charge;
 float voltage, max_voltage, current, max_current;
-uint16_t charging_time, remaining_time;
+//half current;
+uint16_t charging_time, remaining_time; //in minutes
 float battery_resistance, battery_temp;
 uint32_t factory_capacity, actual_capacity;
 float outdoor_temp, indoor_temp, desired_temp;
@@ -329,9 +338,65 @@ string time(void)
 
 int broadcast(void)
 {
+    /**
+    1. overit ci je v rozmedzi nepouzitych bitov
+    //2. orezanie nepotrebnych bitov
+    3.
+    **/
+    //int x = (a >> (0*8)) & 0b111;
 
-    //serial.writeBytes(message,4);
-    return 0;
+    uint8_t message[12];
+    memset(message, 0, 12);
+    uint32_t p1=0, p2=0, p3=0;
+    void* ptr = 0;
+
+    //status
+    int status = 3;
+    p1 |= (status & 0x0007) << 0;   cout << "p1= " << p1 << endl;
+
+    //current charge
+    uint8_t charge = 0b01010000; //d80
+    p1 |= (charge & 0x007F) << 3;   cout << "p1= " << p1 << endl;
+
+    //target charge
+    uint8_t target = static_cast<uint8_t>(target_charge);
+    p1 |= (target & 0x007F) << 10;   cout << "p1= " << p1 << endl;
+
+    //current
+    uint16_t crnt = static_cast<uint16_t>(current);
+    crnt &= 0x03FF;
+    crnt >>=  3;
+
+    p1 |= crnt << 17;   cout << "p1= " << p1 << endl;
+
+
+    //elapsed time
+    ///
+
+    //remaining time
+    //approach
+    //consumption
+    float cons = 6.7;
+    float tempr = 22.4;
+
+    half cons_h; cons_h = cons;
+
+    ptr = &cons_h;
+    uint16_t cons_i = *(uint16_t*)ptr;
+
+    p3 |= (cons_i & 0xFFFF) << 0;   cout << "p3= " << p3 << endl;
+
+    //temperature
+    half temp_h(tempr);
+    ptr = &temp_h;
+    uint16_t temp_i = *(uint16_t*)ptr;
+
+    p3 |= (temp_i & 0xFFFF) << 16;   cout << "p3= " << p3 << endl;
+
+
+    status = serial.writeBytes(message,12);
+    exit(0);
+    return 0; //status;
 }
 
 
@@ -340,8 +405,13 @@ int broadcast(void)
 
 int main()
 {
+    broadcast();
     cout << "*init \n";
     std::this_thread::sleep_for(500ms);
+
+    half temp(26.3);
+    printf("%d", temp);
+    return 0;
 
     setlocale(LC_ALL, "");  //funguje na linuxe?
     atexit(atExitFunc);
@@ -382,6 +452,7 @@ int main()
         serial.writeString("skuska");
         //cout << "aa" << endl;
 /*
+        //ovladanie simulatora
         if(c=_getch())
         {
             printf("%d", c);
@@ -399,3 +470,4 @@ int main()
 
     return 0;
 }
+
