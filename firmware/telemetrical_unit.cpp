@@ -199,7 +199,7 @@ int setState(State s, float _current = 0, float _target_charge = 0)
     state = s;
 
     cout << endl << "[>] State: "; if(state==0) cout << "Off"; if(state==1) cout << "Charging"; if(state==2) cout << "Idle"; if(state==3) cout << "Driving";
-        if(state==Charging || state==Driving) printf("  (with current: %.1fA", current); if(state==Charging) printf("  with target charge: %.0f%)", target_charge);
+        if(state==Charging || state==Driving) printf("  (with current: %.1fA", current); if(state==Charging) printf("  to target charge: %.0f%)", target_charge);
     cout <<  endl << endl;
 
     return 0;
@@ -304,7 +304,7 @@ void recalcOthers(void) //not related only to charging
     elapsed_time = (float)(clock()-chargingSStimestamp) / CLOCKS_PER_SEC /60 * DEMO;
 
     //range
-    range = (vehicle.factoryCapacity/100)*(charge/100.0);
+    range = (vehicle.factoryCapacity/100)*(charge/100.0); //* vehicle_effectivity;
 }
 
 void report(bool brief = false)
@@ -603,13 +603,14 @@ int main()
     simulatorRunning = true;   //StartSimulator()
     broadcasterAllowed = true;
 
-    setState(Charging, 300, 80);
+    setState(Charging, 40, 85);
 
     std::this_thread::sleep_for(500ms);
 
     cout << endl << "[i] Entering main loop." << endl << endl;
-    printf("--- time ----- voltage ----- charge ------ elapsed | remaining ---------------- range --- \n");
-    //      * 03:05:23     665,3V     65,3% of 80%     (0 mins / 1 hours, 47 mins)          326km
+    printf("--- time ----- voltage ----- charge ------ elapsed | remaining ----------------- range --- \n");
+    //      * 15:48:20     665,3V     65,3% of 80%     (0 mins / 8 hours, 4 mins)            326km
+
 
     while(true)
     {
