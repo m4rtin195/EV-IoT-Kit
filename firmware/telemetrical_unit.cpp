@@ -565,7 +565,7 @@ int resetAT(void)
 
 /// //////////////////////////////////////////////////////////////////////////////////////////////////////
 /// main
-/*
+
 int main()
 {
     cout << "*init*" << endl;
@@ -621,7 +621,7 @@ int main()
             if(c=='a') printf("aaaa");
             if(c=='b') printf("bbbb");
         }
-        *//*
+        */
 
         if(!(i%5)) report(briefly);
 
@@ -632,4 +632,3 @@ int main()
 
     return 0;
 }
-*/
