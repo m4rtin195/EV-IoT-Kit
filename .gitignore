@@ -4,3 +4,4 @@
 *.o
 *.depend
 firmware/main.cpp
+firmware/test.cpp
