@@ -1,0 +1,14 @@
+* Sigfox Backend Payload parsing grammar *
+
+field_name : byte_index : type_def : number_of_bits : endianness : bit offset
+-----------------------------------------------------------------------------
+state:0:uint:3:big-endian:7
+current_charge:0:uint:7:big-endian:4
+target_charge:1:uint:7:big-endian:5 
+current:2:uint:10:big-endian:6 
+elapsed_time:3:uint:13:big-endian:4
+remain_time:5:uint:13:big-endian:7
+range:6:uint:11:big-endian:2
+_elec_consumption:8:uint:16:big-endian:7
+_indoor_temp:10:uint:16:big-endian:7
+
