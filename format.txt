@@ -1,6 +1,6 @@
 //SigFox message max payload length = 12 bytes
 
-* eCar -> Sigfox Communucation format *
+* eCar -> Sigfox Communication format *
 
 
 Regular message content:

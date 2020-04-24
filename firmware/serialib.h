@@ -98,7 +98,7 @@ public:
     // ::: Read/Write operation on strings :::
 
 
-    // Write a string
+    // Write a string1111111111111
     char    writeString (const char *String);
 
     // Read a string (with timeout)
