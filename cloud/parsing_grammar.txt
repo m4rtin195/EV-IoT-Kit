@@ -11,3 +11,4 @@ remain_time:5:uint:13:big-endian:7
 range:6:uint:11:big-endian:2
 _elec_consumption:8:uint:16:big-endian:7
 _indoor_temp:10:uint:16:big-endian:7
+
