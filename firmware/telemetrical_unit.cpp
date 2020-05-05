@@ -9,13 +9,11 @@
 #include <locale>
 #include <thread>
 
-#include "serialib.h"
-#include "half.hpp"
+#include "include/serialib.h"
+#include "include/half.hpp"
 
 using namespace std;
-//using half_float::half;
 using namespace half_float;
-using namespace half_float::literal;
 
 typedef uint8_t byte;
 
@@ -75,7 +73,6 @@ clock_t chargingSStimestamp; //start/stop
 
 
 // system variables
-
 serialib serial;
 
 auto brdcstInterval = 30 * (CLOCKS_PER_SEC/1000)*1000; //input in seconds
@@ -210,52 +207,56 @@ void Simulator(void)
 {
     cout << "[i] Simulator thread started." << endl;
 
-    while(simulatorRunning == true)
+    while(true)
     {
-        wdtSim = clock();
-
-        switch(state)
+        if(simulatorRunning == true)
         {
-            case Off:
-            {
-                continue;
-            }
+            wdtSim = clock();
 
-            case Charging:
+            switch(state)
             {
-                if(current>max_current)
+                case Off:
                 {
-                    cout << "[!] Current bigger than user max current, limiting." << endl;
-                    current = max_current;
+                    continue;
                 }
-                if(charge < target_charge)
+
+                case Charging:
                 {
-                    charge = calcCharge();
+                    if(current>max_current)
+                    {
+                        cout << "[!] Current bigger than user max current, limiting." << endl;
+                        current = max_current;
+                    }
+                    if(charge < target_charge)
+                    {
+                        charge = calcCharge();
+                    }
+                    else
+                    {
+                        report(briefly);
+                        cout << endl << "[>] Charge completed (in " << minsToTime(elapsed_time) << ").";
+                        setState(Idle);
+                    }
+                    break;
                 }
-                else
+
+                case Idle:
                 {
-                    report(briefly);
-                    cout << endl << "[>] Charge completed (in " << minsToTime(elapsed_time) << ").";
-                    setState(Idle);
+                    if(charge < target_charge)
+                        setState(Charging, max_current);
+
+                    break;
                 }
-                break;
+
+                case Driving:
+                {
+                    break;
+                }
             }
 
-            case Idle:
-            {
-                if(charge < target_charge)
-                    setState(Charging, max_current);
-
-                break;
-            }
-
-            case Driving:
-            {
-                break;
-            }
+            recalcOthers();
+            cout.flush();
         }
-
-        recalcOthers();
         thrSleep(1);
     }
 }
@@ -342,20 +343,23 @@ void Broadcaster(void)
     int st = 0;
     clock_t lastTime;
 
-    while(broadcasterAllowed == true)
+    while(true)
     {
-        wdtBrdcst = clock();
-
-        if(clock() > lastTime + brdcstInterval) //broadcast now
+        if(broadcasterAllowed == true)
         {
-            lastTime = clock();
-            st = broadcast();
-            if(st == 0)
-                cout << "[>] Broadcasting message (at " << time() << ") successful" << endl;
-            else
-                cout << "[!] Broadcasting message (at " << time() << ") failed with code: " << st << endl;
-        }
+            wdtBrdcst = clock();
 
+            if(clock() > lastTime + brdcstInterval) //broadcast now
+            {
+                lastTime = clock();
+                st = broadcast();
+                if(st == 0)
+                    cout << "[>] Broadcasting message (at " << time() << ") successful" << endl;
+                else
+                    cout << "[!] Broadcasting message (at " << time() << ") failed with code: " << st << endl;
+            }
+            cout.flush();
+        }
         thrSleep(1);
     }
 }
@@ -577,8 +581,6 @@ int main()
     simulatorRunning = false;
     broadcasterAllowed = false;
     chargingSStimestamp = 0;
-    int i=0;
-    char c=0;
 
 
     /// init setial port
@@ -614,9 +616,11 @@ int main()
 
     while(true)
     {
+        int i=0;
+
         /*
         //ovladanie simulatora
-        if(c=_getch())
+        while(char c =_getch())
         {
             printf("%d", c);
             if(c=='a') printf("aaaa");
@@ -628,6 +632,7 @@ int main()
 
         i++;
         wdtMain = clock();
+        cout.flush();
         thrSleep(1);
     }
 
