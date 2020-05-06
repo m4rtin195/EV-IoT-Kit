@@ -9,13 +9,11 @@
 #include <locale>
 #include <thread>
 
-#include "serialib.h"
-#include "half.hpp"
+#include "include/serialib.h"
+#include "include/half.hpp"
 
 using namespace std;
-//using half_float::half;
 using namespace half_float;
-using namespace half_float::literal;
 
 typedef uint8_t byte;
 
@@ -75,7 +73,6 @@ clock_t chargingSStimestamp; //start/stop
 
 
 // system variables
-
 serialib serial;
 
 auto brdcstInterval = 30 * (CLOCKS_PER_SEC/1000)*1000; //input in seconds
@@ -199,7 +196,7 @@ int setState(State s, float _current = 0, float _target_charge = 0)
     state = s;
 
     cout << endl << "[>] State: "; if(state==0) cout << "Off"; if(state==1) cout << "Charging"; if(state==2) cout << "Idle"; if(state==3) cout << "Driving";
-        if(state==Charging || state==Driving) printf("  (with current: %.1fA", current); if(state==Charging) printf("  with target charge: %.0f%)", target_charge);
+        if(state==Charging || state==Driving) printf("  (with current: %.1fA", current); if(state==Charging) printf("  to target charge: %.0f%)", target_charge);
     cout <<  endl << endl;
 
     return 0;
@@ -209,53 +206,57 @@ int setState(State s, float _current = 0, float _target_charge = 0)
 void Simulator(void)
 {
     cout << "[i] Simulator thread started." << endl;
-
-    while(simulatorRunning == true)
+  
+    while(true)
     {
-        wdtSim = clock();
-
-        switch(state)
+        if(simulatorRunning == true)
         {
-            case Off:
-            {
-                continue;
-            }
+            wdtSim = clock();
 
-            case Charging:
+            switch(state)
             {
-                if(current>max_current)
+                case Off:
                 {
-                    cout << "[!] Current bigger than user max current, limiting." << endl;
-                    current = max_current;
+                    continue;
                 }
-                if(charge < target_charge)
+
+                case Charging:
                 {
-                    charge = calcCharge();
+                    if(current>max_current)
+                    {
+                        cout << "[!] Current bigger than user max current, limiting." << endl;
+                        current = max_current;
+                    }
+                    if(charge < target_charge)
+                    {
+                        charge = calcCharge();
+                    }
+                    else
+                    {
+                        report(briefly);
+                        cout << endl << "[>] Charge completed (in " << minsToTime(elapsed_time) << ").";
+                        setState(Idle);
+                    }
+                    break;
                 }
-                else
+
+                case Idle:
                 {
-                    report(briefly);
-                    cout << endl << "[>] Charge completed (in " << minsToTime(elapsed_time) << ").";
-                    setState(Idle);
+                    if(charge < target_charge)
+                        setState(Charging, max_current);
+
+                    break;
                 }
-                break;
+
+                case Driving:
+                {
+                    break;
+                }
             }
 
-            case Idle:
-            {
-                if(charge < target_charge)
-                    setState(Charging, max_current);
-
-                break;
-            }
-
-            case Driving:
-            {
-                break;
-            }
+            recalcOthers();
+            cout.flush();
         }
-
-        recalcOthers();
         thrSleep(1);
     }
 }
@@ -304,7 +305,7 @@ void recalcOthers(void) //not related only to charging
     elapsed_time = (float)(clock()-chargingSStimestamp) / CLOCKS_PER_SEC /60 * DEMO;
 
     //range
-    range = (vehicle.factoryCapacity/100)*(charge/100.0);
+    range = (vehicle.factoryCapacity/100)*(charge/100.0); //* vehicle_effectivity;
 }
 
 void report(bool brief = false)
@@ -326,8 +327,8 @@ void report(bool brief = false)
         printf("  Current: %.1fA \t Max current: %.0fA \n", current, max_current);
         printf("  Capacity: %dWh \t Max capacity: %dWh \t Factory capacity: %dWh \t Wear: %.1f% \n", 50000, 0/*actual_capacity*/, vehicle.factoryCapacity, 0/*(actual_capacity/factory_capacity)*/);
         printf("  Charging time: %s \t Remaining time: %s \n", "1h12m", "52m");                                          ///
-        printf("  Battery resistance: %.2fohm \t Battery temperature: %.1f캜 \n", 0/*battery_resistance*/, 0/*battery_temp*/);
-        printf("  Outdoor temperature: %.1f캜 \t Indoor temperature: %.1f캜 \t Desired temperature: %.1f캜 \n", 0/*outdoor_temp*/, indoor_temp, 0/*desired_temp*/);
+        printf("  Battery resistance: %.2fohm \t Battery temperature: %.1f째C \n", 0/*battery_resistance*/, 0/*battery_temp*/);
+        printf("  Outdoor temperature: %.1f째C \t Indoor temperature: %.1f째C \t Desired temperature: %.1f째C \n", 0/*outdoor_temp*/, indoor_temp, 0/*desired_temp*/);
         printf("  Fuel consumption: \t %.1fl/100km \n  Elec. consumption: \t %.1fkWh/100km \n", 0.0/*fuel_consumption*/, elec_consumption);
         printf("  Fuel amount: %.1fl \t Electric-Gas ratio: %s \t range: %dkm \n", 0/*fuel_weight*/, "1:0", range);    ///
         printf("  Vehicle location: %s \n", "0.0000 0.0000");
@@ -340,22 +341,25 @@ void Broadcaster(void)
 {
     cout << "[i] Broadcaster thread started." << endl;
     int st = 0;
-    clock_t lastTime;
+    clock_t lastTime = clock();
 
-    while(broadcasterAllowed == true)
+    while(true)
     {
-        wdtBrdcst = clock();
-
-        if(clock() > lastTime + brdcstInterval) //broadcast now
+        if(broadcasterAllowed == true)
         {
-            lastTime = clock();
-            st = broadcast();
-            if(st == 0)
-                cout << "[>] Broadcasting message (at " << time() << ") successful" << endl;
-            else
-                cout << "[!] Broadcasting message (at " << time() << ") failed with code: " << st << endl;
-        }
+            wdtBrdcst = clock();
 
+            if(clock() > lastTime + brdcstInterval) //broadcast now
+            {
+                lastTime = clock();
+                st = broadcast();
+                if(st == 0)
+                    cout << "[>] Broadcasting message (at " << time() << ") successful" << endl;
+                else
+                    cout << "[!] Broadcasting message (at " << time() << ") failed with code: " << st << endl;
+            }
+            cout.flush();
+        }
         thrSleep(1);
     }
 }
@@ -463,7 +467,7 @@ int broadcast(void)
     if(status!=1) return status;
 
     char answ[20];
-    int val = serial.readString(answ,'\n',20,8000);
+    int val = serial.readString(answ,'\n',20,8000);  //wait 8sec for transmission and ack
     if(val>0)
     {
         if(strncmp(answ,"OK\n",3)==0)
@@ -480,7 +484,6 @@ int broadcast(void)
         if(val==0) status = NO_REPLY;
         else status = val;
     }
-
     return status;
 }
 
@@ -558,7 +561,7 @@ int resetAT(void)
 
     int val = serial.readString(answ,'\n',6,2000);
     if(val==0) return NO_REPLY;
-    if(strncmp(answ,"OK\n",3)==0 || strncmp(answ,"OK\nOK\n",6)==0) return OK;
+    if(strncmp(answ,"OK\r\n",3)==0 || strncmp(answ,"OK\r\nOK\r\n",6)==0) return OK;
     return val;
 }
 
@@ -578,7 +581,6 @@ int main()
     broadcasterAllowed = false;
     chargingSStimestamp = 0;
     int i=0;
-    char c=0;
 
 
     /// init setial port
@@ -594,28 +596,29 @@ int main()
 
     sim_earlyValues();
 
-    std::thread thread_simulator(Simulator);
-    std::thread thread_broadcaster(Broadcaster);
-    std::thread thread_watchdog(Watchdog);
+    std::thread thread_simulator(Simulator);        thread_simulator.detach();
+    std::thread thread_broadcaster(Broadcaster);    thread_broadcaster.detach();
+    std::thread thread_watchdog(Watchdog);          thread_watchdog.detach();
     //std::this_thread::sleep_for(1ms); // BUG: sposobuje simulator watchdog exp
     for(int i=0;i<100000;i++) i=i;
 
     simulatorRunning = true;   //StartSimulator()
     broadcasterAllowed = true;
 
-    setState(Charging, 300, 80);
+    setState(Charging, 40, 85);
 
     std::this_thread::sleep_for(500ms);
 
     cout << endl << "[i] Entering main loop." << endl << endl;
-    printf("--- time ----- voltage ----- charge ------ elapsed | remaining ---------------- range --- \n");
-    //      * 03:05:23     665,3V     65,3% of 80%     (0 mins / 1 hours, 47 mins)          326km
+
+    printf("--- time ----- voltage ----- charge ------ elapsed | remaining ----------------- range --- \n");
+    //      * 15:48:20     665,3V     65,3% of 80%     (0 mins / 8 hours, 4 mins)            326km
 
     while(true)
     {
         /*
         //ovladanie simulatora
-        if(c=_getch())
+        while(char c =_getch())
         {
             printf("%d", c);
             if(c=='a') printf("aaaa");
@@ -627,6 +630,7 @@ int main()
 
         i++;
         wdtMain = clock();
+        cout.flush();
         thrSleep(1);
     }
 

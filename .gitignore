@@ -5,3 +5,4 @@
 *.depend
 firmware/main.cpp
 firmware/test.cpp
+.DS_Store

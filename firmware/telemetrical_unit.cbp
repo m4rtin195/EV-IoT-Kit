@@ -34,11 +34,10 @@
 			<Add option="-fexceptions" />
 			<Add option="-pthread" />
 		</Compiler>
-		<Unit filename="half.hpp" />
-		<Unit filename="serialib.cpp" />
-		<Unit filename="serialib.h" />
+		<Unit filename="include/half.hpp" />
+		<Unit filename="include/serialib.cpp" />
+		<Unit filename="include/serialib.h" />
 		<Unit filename="telemetrical_unit.cpp" />
-		<Unit filename="test.cpp" />
 		<Extensions>
 			<code_completion />
 			<envvars />
