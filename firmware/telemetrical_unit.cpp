@@ -206,7 +206,7 @@ int setState(State s, float _current = 0, float _target_charge = 0)
 void Simulator(void)
 {
     cout << "[i] Simulator thread started." << endl;
-
+  
     while(true)
     {
         if(simulatorRunning == true)
@@ -327,8 +327,8 @@ void report(bool brief = false)
         printf("  Current: %.1fA \t Max current: %.0fA \n", current, max_current);
         printf("  Capacity: %dWh \t Max capacity: %dWh \t Factory capacity: %dWh \t Wear: %.1f% \n", 50000, 0/*actual_capacity*/, vehicle.factoryCapacity, 0/*(actual_capacity/factory_capacity)*/);
         printf("  Charging time: %s \t Remaining time: %s \n", "1h12m", "52m");                                          ///
-        printf("  Battery resistance: %.2fohm \t Battery temperature: %.1f캜 \n", 0/*battery_resistance*/, 0/*battery_temp*/);
-        printf("  Outdoor temperature: %.1f캜 \t Indoor temperature: %.1f캜 \t Desired temperature: %.1f캜 \n", 0/*outdoor_temp*/, indoor_temp, 0/*desired_temp*/);
+        printf("  Battery resistance: %.2fohm \t Battery temperature: %.1f째C \n", 0/*battery_resistance*/, 0/*battery_temp*/);
+        printf("  Outdoor temperature: %.1f째C \t Indoor temperature: %.1f째C \t Desired temperature: %.1f째C \n", 0/*outdoor_temp*/, indoor_temp, 0/*desired_temp*/);
         printf("  Fuel consumption: \t %.1fl/100km \n  Elec. consumption: \t %.1fkWh/100km \n", 0.0/*fuel_consumption*/, elec_consumption);
         printf("  Fuel amount: %.1fl \t Electric-Gas ratio: %s \t range: %dkm \n", 0/*fuel_weight*/, "1:0", range);    ///
         printf("  Vehicle location: %s \n", "0.0000 0.0000");
@@ -484,7 +484,6 @@ int broadcast(void)
         if(val==0) status = NO_REPLY;
         else status = val;
     }
-
     return status;
 }
 
@@ -611,6 +610,7 @@ int main()
     std::this_thread::sleep_for(500ms);
 
     cout << endl << "[i] Entering main loop." << endl << endl;
+
     printf("--- time ----- voltage ----- charge ------ elapsed | remaining ----------------- range --- \n");
     //      * 15:48:20     665,3V     65,3% of 80%     (0 mins / 8 hours, 4 mins)            326km
 
