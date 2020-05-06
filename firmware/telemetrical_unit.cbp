@@ -34,7 +34,6 @@
 			<Add option="-fexceptions" />
 			<Add option="-pthread" />
 		</Compiler>
-		<Unit filename="half.hpp" />
 		<Unit filename="include/half.hpp" />
 		<Unit filename="include/serialib.cpp" />
 		<Unit filename="include/serialib.h" />

@@ -341,7 +341,7 @@ void Broadcaster(void)
 {
     cout << "[i] Broadcaster thread started." << endl;
     int st = 0;
-    clock_t lastTime;
+    clock_t lastTime = clock();
 
     while(true)
     {
@@ -467,7 +467,7 @@ int broadcast(void)
     if(status!=1) return status;
 
     char answ[20];
-    int val = serial.readString(answ,'\n',20,8000);
+    int val = serial.readString(answ,'\n',20,8000);  //wait 8sec for transmission and ack
     if(val>0)
     {
         if(strncmp(answ,"OK\n",3)==0)
@@ -562,7 +562,7 @@ int resetAT(void)
 
     int val = serial.readString(answ,'\n',6,2000);
     if(val==0) return NO_REPLY;
-    if(strncmp(answ,"OK\n",3)==0 || strncmp(answ,"OK\nOK\n",6)==0) return OK;
+    if(strncmp(answ,"OK\r\n",3)==0 || strncmp(answ,"OK\r\nOK\r\n",6)==0) return OK;
     return val;
 }
 
@@ -581,6 +581,7 @@ int main()
     simulatorRunning = false;
     broadcasterAllowed = false;
     chargingSStimestamp = 0;
+    int i=0;
 
 
     /// init setial port
@@ -596,9 +597,9 @@ int main()
 
     sim_earlyValues();
 
-    std::thread thread_simulator(Simulator);
-    std::thread thread_broadcaster(Broadcaster);
-    std::thread thread_watchdog(Watchdog);
+    std::thread thread_simulator(Simulator);        thread_simulator.detach();
+    std::thread thread_broadcaster(Broadcaster);    thread_broadcaster.detach();
+    std::thread thread_watchdog(Watchdog);          thread_watchdog.detach();
     //std::this_thread::sleep_for(1ms); // BUG: sposobuje simulator watchdog exp
     for(int i=0;i<100000;i++) i=i;
 
@@ -613,11 +614,8 @@ int main()
     printf("--- time ----- voltage ----- charge ------ elapsed | remaining ----------------- range --- \n");
     //      * 15:48:20     665,3V     65,3% of 80%     (0 mins / 8 hours, 4 mins)            326km
 
-
     while(true)
     {
-        int i=0;
-
         /*
         //ovladanie simulatora
         while(char c =_getch())
