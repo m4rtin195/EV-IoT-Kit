@@ -1,6 +1,5 @@
 #include "window.h"
 #include "ui_window.h"
-#include <QTextStream>
 
 Window::Window(QWidget *parent) : QWidget(parent), ui(new Ui::Window)
 {
@@ -9,26 +8,35 @@ Window::Window(QWidget *parent) : QWidget(parent), ui(new Ui::Window)
     /**/
     // Set up ThreadLogStream, which redirect cout to signal sendLogString
     // Set up  MessageHandler,  wgucg catch message from sendLogString and Display
-    //m_qd = new ThreadLogStream(std::cout); //Redirect Console output to QTextEdit
-    //this->msgHandler = new MessageHandler(this->ui->logboard, this);
-    //connect(m_qd, &ThreadLogStream::sendLogString, msgHandler, &MessageHandler::catchMessage);
+    m_qd = new ThreadLogStream(std::cout); //Redirect Console output to QTextEdit
+    this->msgHandler = new MessageHandler(this->ui->logboard, this);
+    connect(m_qd, &ThreadLogStream::sendLogString, msgHandler, &MessageHandler::catchMessage);
     /**/
+
+    cout << "Initialization..." << endl;
 
     vehicle = new Vehicle(); v = vehicle;
     logger = new Logger(vehicle);
-    simulator = new Simulator(vehicle);
     broadcaster = new Broadcaster(vehicle);
+    simulator = new Simulator(vehicle);
+    QThread::msleep(100); //vypisy z thread
 
-    connect(simulator, SIGNAL(logRequest(bool)), logger, SLOT(logRequest(bool)));
+    connect(simulator, SIGNAL(logRequest(bool,bool)), logger, SLOT(logRequest(bool,bool)));
     connect(simulator, SIGNAL(redrawRequest()), this, SLOT(updateUI()));
-    connect(simulator, SIGNAL(broadcastRequest()), broadcaster, SLOT(broadcast()));
+    connect(simulator, SIGNAL(broadcastRequest(bool)), broadcaster, SLOT(broadcast(bool)));
     connect(broadcaster, SIGNAL(broadcastCompleted(int)), logger, SLOT(broadcastCompleted(int)));
     connect(broadcaster, SIGNAL(connectivityChanged(int)), this, SLOT(updateUI()));
 
     simulator->setInitialValues();
+    updateUI();
+    cout << endl << "--- time ----- voltage ----- charge -- elapsed | remaining ------- range ---" << endl;
+    //               * 15:48:20     665,3V     65,3% of 80%     (0m / 8h,4m)            326km
+    logger->logRequest(briefly, priority_now);
 
-    simulator->enabled(true);
-    broadcaster->enabled(true);
+    ///demo
+    //simulator->setState(Vehicle::Charging, 250, 70);
+    //simulator->enabled(true);
+    //broadcaster->enabled(true);
 }
 
 Window::~Window()
@@ -70,14 +78,27 @@ void Window::updateUI()
     }
     ui->label_state->setText(s);
 
-    s = QString::number(v->charge, 'f', 1) + "%";
-    ui->label_charge->setText(s);
+    if(v->state == Vehicle::Off)
+    {
+        ui->label_charge->setText("-");
+        ui->label_current->setText("-");
+        ui->progressBar->setValue(0);
+        ui->scrollBar->setValue(0);
+        ui->scrollBar->setEnabled(false);
+    }
 
-    s = QString::number(v->current, 'f', 0) + "A";
-    ui->label_current->setText(s);
+    else //working states
+    {
+        s = QString::number(v->charge, 'f', 1) + "%";
+        ui->label_charge->setText(s);
 
-    ui->progressBar->setValue(v->charge);
-    ui->scrollBar->setValue(v->charge);
+        s = QString::number(v->current, 'f', 0) + "A";
+        ui->label_current->setText(s);
+
+        ui->progressBar->setValue(v->charge);
+        ui->scrollBar->setValue(v->charge);
+        ui->scrollBar->setEnabled(true);
+    }
 
     switch(broadcaster->getConnectivity())
     {
@@ -95,25 +116,28 @@ void Window::on_button_off_clicked()
 {
     simulator->setState(Vehicle::Off);
     simulator->enabled(false);
-    broadcaster->enabled(false); //todo presun zapinanie/vypinanie do setState() //ako to ze detekuje konektivitu aj s vypnutym broadcasterom?
+    broadcaster->enabled(false);
 }
 
 void Window::on_button_idle_clicked()
 {
     simulator->setState(Vehicle::Idle);
     simulator->enabled(true);
+    broadcaster->enabled(true);
 }
 
 void Window::on_button_charging_clicked()
 {
     simulator->setState(Vehicle::Charging, 120, 85);
     simulator->enabled(true);
+    broadcaster->enabled(true);
 }
 
 void Window::on_button_driving_clicked()
 {
-    simulator->setState(Vehicle::Driving);
+    simulator->setState(Vehicle::Driving, -20);
     simulator->enabled(true);
+    broadcaster->enabled(true);
 }
 
 void Window::on_button_ampMinus_clicked()
@@ -134,6 +158,6 @@ void Window::on_button_exit_clicked()
 void Window::on_scrollBar_sliderMoved(int position)
 {
     simulator->setCharge(position);
-    ui->progressBar->setValue(position);
+    updateUI();
 }
 

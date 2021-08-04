@@ -7,10 +7,11 @@ Simulator::Simulator(Vehicle* vehicle) : QThread()
 {
     v = vehicle;
 
-    timer = new QTimer(this);
-    connect(timer, SIGNAL(timeout()), this, SLOT(_simulate()));
+    tickTimer = new QTimer(this);
+    connect(tickTimer, SIGNAL(timeout()), this, SLOT(_simulate()));
 
     SStimestamp.start();
+    this->QThread::start();
 }
 
 Simulator::~Simulator()
@@ -21,13 +22,10 @@ Simulator::~Simulator()
 
 void Simulator::enabled(bool b)
 {
-    if(b && !isRunning())
-        this->QThread::start();
-
     if(b)
-        timer->start(SIMULATION_INTERVAL);
+        tickTimer->start(SIMULATION_INTERVAL);
     else
-        timer->stop();
+        tickTimer->stop();
 }
 
 void Simulator::setInitialValues()
@@ -48,7 +46,7 @@ void Simulator::setInitialValues()
     v->desired_temp = v->indoor_temp;
     v->location = "placeholder location";
 
-    emit logRequest(extended);
+    //emit logRequest(extended);
     cout << "[i] Initial values set." << endl;
 }
 
@@ -83,7 +81,7 @@ void Simulator::_simulate()
             }
             else
             {
-                emit logRequest(briefly);
+                emit logRequest(briefly, priority_now);
                 cout << endl << "[>] Charge completed (in " << Logger::minsToTime(v->elapsed_time) << ").";
                 setState(Vehicle::Idle);
             }
@@ -92,7 +90,8 @@ void Simulator::_simulate()
 
         case Vehicle::Idle:
         {
-            break;
+            //break;
+            return;
         }
 
         case Vehicle::Driving:
@@ -107,11 +106,13 @@ void Simulator::_simulate()
     emit logRequest(briefly);
 }
 
+//return: 0=changed, 1=same
 int Simulator::setState(Vehicle::State newState, float _current, float _target_charge)
 {
+    if(newState == v->state) return 1;
     //if(((v->state != Vehicle::Charging) && (newState == Vehicle::Charging)) || ((v->state == Vehicle::Charging) && (newState != Vehicle::Charging))) //change to or from charging wtf naco
-    if(newState != v->state)
-        SStimestamp.restart();
+
+    SStimestamp.restart();
 
     if(/*(v->state == Vehicle::Charging) &&*/ newState != Vehicle::Charging)
         v->remaining_time = 0;
@@ -126,13 +127,15 @@ int Simulator::setState(Vehicle::State newState, float _current, float _target_c
             cout << "[!] Charging current out of defined range. Using 300Amps." << endl;
         }
     }
-    else
+    else //off/idle
         v->current = 0;
 
     if(_target_charge>=0 && _target_charge<=100)
         v->target_charge = _target_charge;
 
     v->state = newState;
+    this->_simulate();
+    _recalcOthers();
     emit redrawRequest();
 
 
@@ -140,19 +143,36 @@ int Simulator::setState(Vehicle::State newState, float _current, float _target_c
     cout << endl << "[>] State: ";
     switch(v->state)
     {
-        case Vehicle::Off: cout << "Off"; break;
-        case Vehicle::Charging: cout << "Charging" << "(with current: %.1fA, to target charge: %.0f%)"; break; //TODO parametre
-        case Vehicle::Idle: cout << "Idle"; break;
-        case Vehicle::Driving: cout << "Driving" << "(with current: %.1fA)"; break;
-        default: cout << "wtf??";
+        case Vehicle::Off:
+            cout << "Off";
+            break;
+
+        case Vehicle::Charging:
+            cout << QString("Charging (with current: %1A, to target charge: %2%)")
+                    .arg(QString::number(_current, 'f', 1), QString::number(_target_charge, 'f', 0))
+                    .toStdString();
+            break;
+
+        case Vehicle::Idle:
+            cout << "Idle";
+            break;
+
+        case Vehicle::Driving:
+            cout << QString("Driving (with current: %1A)")
+                    .arg(QString::number(_current, 'f', 1))
+                    .toStdString();
+            break;
+
+        default:
+            cout << "wtf??";
     }
 
     if(v->state == Vehicle::Driving || v->state == Vehicle::Off) cout << endl << "[!] Not implemented.";
 
     cout << endl << endl;
 
-
-    emit broadcastRequest();
+    emit logRequest(briefly, priority_now);
+    emit broadcastRequest(priority_now);
     return 0;
 }
 
@@ -168,7 +188,6 @@ void Simulator::setCurrent(float current)
     v->current = current;
     emit redrawRequest();
 }
-
 
 float Simulator::_calcCharge(void)
 {
@@ -197,16 +216,16 @@ float Simulator::_calcCharge(void)
     x = (1/a) * log(-((charge-100) / 100));  //inverse func of next line  // x=(1/a)*log(-((y-100)/100))
 
     // calc new charge level for time+1 (second/minute)
-    y = 100.0 * (1 - exp(a * (x + ((float)1/60*TIME_SPEED) )));   //charging exp curve  // y=100*(1-exp(a*x))
+    y = 100.0 * (1 - exp(a * (x + ((float)1/60*TIME_SPEED))));   //charging exp curve  // y=100*(1-exp(a*x))
 
     if(y>99.5) y=100;  //end of exp func is very long so consider charging as complete
     if(y>target_charge) y=target_charge;
 
     float _target_charge = (target_charge>99.5) ? 99.5 : target_charge;
     float x_full = (1/a) * log(-((_target_charge-100-0.01) / 100));  //x at target_charge
-    v->remaining_time = (x_full - x) /60 * TIME_SPEED;
+    v->remaining_time = (x_full - x);
 
-    //printf("##: x= %f  y= %f  a=%f \n", x, y, a);
+    //printf("##: x= %f  xt = %f  y= %f  a=%f \n", x, x_full, y, a);
     return y;
 }
 
@@ -214,6 +233,6 @@ void Simulator::_recalcOthers() //not related only to charging
 {
     v->voltage = v->min_voltage + ((v->max_voltage - v->min_voltage) * v->charge/100.0);
     //v->elapsed_time = (float)(clock()-chargingSStimestamp) / CLOCKS_PER_SEC /60 * TIME_SPEED;
-    v->elapsed_time = SStimestamp.elapsed()/1000/60 * TIME_SPEED; //result in minutes
+    v->elapsed_time = (float)(SStimestamp.elapsed())/1000/60 * TIME_SPEED; //result in minutes
     v->range = (v->battery_capacity/100)*(v->charge/100.0); //* vehicle_effectivity;
 }

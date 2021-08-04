@@ -12,8 +12,11 @@
 #include "logger.h"
 #include "vehicle.h"
 
-#define BROADCAST_INTERVAL 5000
-#define SIGFOX_INTERVAL 10  //multiples of BROADCAST_INTERVAL
+// config
+#define BROADCAST_INTERVAL 10000    // interval of broadcasting attempts [ms]
+#define SIGFOX_INTERVAL 1           // broadcasting via sigfox [each x broadcast attempt]
+#define API_KEY "33VVtBeulA7RVGd3xBdpw5sFb3O14AAj22ZkEkar"    //AWS API key for broadcasting via network
+// /////
 
 #define OK 0
 #define UNKNOWN_REPLY -3
@@ -36,7 +39,7 @@ public:
     Connectivity getConnectivity();
 
 private:
-    QTimer *timer;
+    QTimer *tickTimer;
     serialib serial;
     QNetworkAccessManager nam;
     Vehicle* v;
@@ -58,7 +61,7 @@ signals:
     void connectivityChanged(int connectivity);
 
 public slots:
-    void broadcast();
+    void broadcast(bool priority = false);
 };
 
 #endif // BROADCASTER_H

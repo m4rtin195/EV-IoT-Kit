@@ -2,14 +2,13 @@
 #define WINDOW_H
 
 #include <QWidget>
-#include <QThread> /////
 #include <QDebug>
 
+#include "include/q_debugstream.h"
 #include "logger.h"
+#include "vehicle.h"
 #include "simulator.h"
 #include "broadcaster.h"
-#include "vehicle.h"
-#include "q_debugstream.h"
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class Window; }
@@ -30,15 +29,14 @@ private:
     MessageHandler *msgHandler = Q_NULLPTR;
     ThreadLogStream* m_qd;
 
-    Logger* logger;
-    Simulator* simulator;
     Vehicle* vehicle;
     Vehicle* v;
-
+    Logger* logger;
     Broadcaster* broadcaster;
+    Simulator* simulator;
 
 public slots:
-    void updateUI(); //TODO nemoze to byt obycajna metoda?
+    void updateUI();
 
 private slots:
     void on_button_off_clicked();

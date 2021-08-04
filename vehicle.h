@@ -2,17 +2,13 @@
 #define VEHICLE_H
 
 #include <iostream>
-//#include <QtGlobal>
-//#include <logger.h>
 
-using namespace std; //global pre vsetky triedy
+using namespace std;
 
-//simulation curve parameters
-#define currentEq_param_a 0.119
-#define currentEq_param_c -0.785
-
-#define briefly true
-#define extended false
+// config
+#define currentEq_param_a 0.119     // simulation curve parameters
+#define currentEq_param_c -0.785    // -//-
+// ///
 
 class Vehicle
 {
@@ -38,7 +34,7 @@ public:
     float desired_temp;
     string location;
 
-    //void report(bool brief = false); //TODO report
+    //void report(bool brief = false);
 };
 
 #endif // VEHICLE_H

@@ -9,10 +9,17 @@
 
 #include "vehicle.h"
 
-using namespace std;
+// config
+#define BROADCASTER_LOGGING_ENABLED true    // write broadcast logs to console
+#define SIMULATOR_LOGGING_ENABLED true      // write simulation logs to console
+#define SIMULATOR_LOGGING_INTERVAL 5        // interval of periodical simulation logs [each x]
+// /////
 
-#define SIMULATOR_LOGGING_ENABLED true
-#define BROADCASTER_LOGGING_ENABLED false
+#define briefly true
+#define extended false
+#define priority_now true
+
+using namespace std;
 
 class Logger : public QObject
 {
@@ -20,17 +27,16 @@ class Logger : public QObject
 public:
     explicit Logger(Vehicle* vehicle);
 
+    static void log(QString message);
     static string time();
     static string minsToTime(uint16_t mins);
-    static void log(QString message);
-    void report(bool brief);
 
 private:
     Vehicle* v;
 
 public slots:
     void broadcastCompleted(int status);
-    void logRequest(bool brief);
+    void logRequest(bool brief, bool priority = false);
 
 };
 

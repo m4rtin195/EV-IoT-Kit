@@ -15,27 +15,26 @@ Broadcaster::Broadcaster(Vehicle* vehicle) : QThread()
     /// init modem
     if(_resetAT()) {cout << "[!] Modem not ready." << endl;}
 
-    timer = new QTimer(this);
-    connect(timer, SIGNAL(timeout()), this, SLOT(broadcast()));
+    tickTimer = new QTimer(this);
+    connect(tickTimer, SIGNAL(timeout()), this, SLOT(broadcast()));
+
+    _checkConnectivity();
+    this->QThread::start();
 }
 
 Broadcaster::~Broadcaster()
 {
     serial.closeDevice();
-
     this->quit();
     this->wait();
 }
 
 void Broadcaster::enabled(bool b)
 {
-    if(b && !isRunning())
-        this->QThread::start();
-
     if(b)
-        timer->start(BROADCAST_INTERVAL);
+        tickTimer->start(BROADCAST_INTERVAL);
     else
-        timer->stop();
+        tickTimer->stop();
 }
 
 // override
@@ -45,15 +44,22 @@ void Broadcaster::run()
     this->exec(); //run the event loop
 }
 
-// high level do broadcast
-void Broadcaster::broadcast()
+// high level public do broadcast
+void Broadcaster::broadcast(bool priority)
 {
+    // todo timing here
+    if(priority != true && (v->state == Vehicle::Off)) return;
+    if(priority != true && (v->state == Vehicle::Idle)) return;
+
+
     int status = _broadcast();
     emit broadcastCompleted(status);
 }
 
 // low level do broadcast
-// return: 1=success via sigfox, 2=success via wifi, 0=no connectivity, -1,-2=serial error, -3=unknown reply, -4=no reply, -9=network error, -10=wrong values, -20=not implemented, >100=httpcode
+// return: 1=success via sigfox, 2=success via wifi, 0=no connectivity,
+//        -1,-2=serial error, -3=unknown reply, -4=no reply, -5=skipped, -9=network error,
+//        -10=wrong values, -20=not implemented, >100=httpcode
 int Broadcaster::_broadcast()
 {
     int status;
@@ -270,8 +276,8 @@ int Broadcaster::_broadcastInternet(uint8_t* payload)
     body.insert("connectivity", QJsonValue(1));
 
     body.insert("state", QJsonValue(v->state));
-    body.insert("current_charge", QJsonValue(v->charge));
-    body.insert("target_charge", QJsonValue(v->target_charge));
+    body.insert("current_charge", QJsonValue((int)v->charge));
+    body.insert("target_charge", QJsonValue((int)v->target_charge));
     body.insert("current", QJsonValue(v->current));
     body.insert("elapsed_time", QJsonValue(v->elapsed_time));
     body.insert("remain_time", QJsonValue(v->remaining_time));
@@ -286,11 +292,12 @@ int Broadcaster::_broadcastInternet(uint8_t* payload)
 
     QJsonDocument doc(body);
     QByteArray _body = doc.toJson();
+    //printf("%s", _body.toStdString().c_str());
 
     QNetworkRequest request(QUrl("https://uilqy1jfsf.execute-api.eu-central-1.amazonaws.com/v2/wifi/"));
     request.setHeader(QNetworkRequest::ContentTypeHeader, "application/json");
     request.setRawHeader("connectivityMethod", "network");
-    request.setRawHeader("x-api-key", "33VVtBeulA7RVGd3xBdpw5sFb3O14AAj22ZkEkar");
+    request.setRawHeader("x-api-key", API_KEY);
 
     QNetworkReply* reply = nam.post(request, _body);
     QEventLoop loop;
