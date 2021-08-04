@@ -15,6 +15,7 @@
 // config
 #define BROADCAST_INTERVAL 10000    // interval of broadcasting attempts [ms]
 #define SIGFOX_INTERVAL 1           // broadcasting via sigfox [each x broadcast attempt]
+#define SERIAL_PORT_NAME "COM0"     // serial port name //win: COM0  rpi: /dev/ttyAMA1
 #define API_KEY "33VVtBeulA7RVGd3xBdpw5sFb3O14AAj22ZkEkar"    //AWS API key for broadcasting via network
 // /////
 

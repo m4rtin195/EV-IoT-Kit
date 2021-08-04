@@ -7,8 +7,7 @@ Broadcaster::Broadcaster(Vehicle* vehicle) : QThread()
     v = vehicle;
 
     /// init setial port
-    //int status = serial.openDevice("/dev/ttyAMA1", 9600);
-    int status = serial.openDevice("COM0", 9600);
+    int status = serial.openDevice(SERIAL_PORT_NAME, 9600);
     cout << "opening port, status: " << status << endl;
     if(status != 1) {cout << "[!] Serial port initialization failed." << endl;}
 
