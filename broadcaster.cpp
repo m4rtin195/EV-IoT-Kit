@@ -328,9 +328,9 @@ int Broadcaster::_checkConnectivity()
         connectivity |= (1 << Connectivity::Wifi);
 
     //Sigfox
-    if(serial.available() == 0)
-        if(_resetAT() == OK)
-            connectivity |= (1 << Connectivity::Sigfox);
+    if(_resetAT() == OK)
+        connectivity |= (1 << Connectivity::Sigfox);
+
 
     if(connectivity != availConnectivity)
     {
