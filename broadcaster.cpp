@@ -308,7 +308,7 @@ int Broadcaster::_broadcastInternet(uint8_t* payload)
     if(httpcode == 201)
         return 0;
     else
-        if(httpcode == 0) return -5;
+        if(httpcode == 0) return -9;
         else return httpcode;
 }
 

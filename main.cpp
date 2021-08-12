@@ -15,7 +15,13 @@ int main(int argc, char *argv[])
     //cout << "going to create Window." << endl;
     Window w;
     //cout << "window created." << endl;
+
+#if defined (_WIN32) || defined (_WIN64)
     w.show(); //w.showFullScreen();
+#endif
+#if defined (__linux__)
+    w.showFullScreen();
+#endif
     //cout << "window showed." << endl;
 
     qInstallMessageHandler(Window::QMessageOutput);
