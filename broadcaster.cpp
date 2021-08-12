@@ -225,7 +225,9 @@ int Broadcaster::_broadcastSerial(uint8_t* payload)
     cout << endl;
     //
 
+
     if(serial.flushReceiver() == 0) cout << "Flush failed!!!!!!!" << endl;
+    _resetAT();
     status = serial.writeBytes(ATcommand,31);
     if(status!=1) return status;
     else cout << "[>] Broadcasting..." << endl;
