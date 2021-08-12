@@ -8,8 +8,8 @@ Window::Window(QWidget *parent) : QWidget(parent), ui(new Ui::Window)
     /**/
     // Set up ThreadLogStream, which redirect cout to signal sendLogString
     // Set up  MessageHandler,  wgucg catch message from sendLogString and Display
-    m_qd = new ThreadLogStream(std::cout); //Redirect Console output to QTextEdit
-    this->msgHandler = new MessageHandler(this->ui->logboard, this);
+    //m_qd = new ThreadLogStream(std::cout); //Redirect Console output to QTextEdit
+    //this->msgHandler = new MessageHandler(this->ui->logboard, this);
     connect(m_qd, &ThreadLogStream::sendLogString, msgHandler, &MessageHandler::catchMessage);
     /**/
 

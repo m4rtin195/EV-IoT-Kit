@@ -20,7 +20,8 @@ int main(int argc, char *argv[])
     w.show(); //w.showFullScreen();
 #endif
 #if defined (__linux__)
-    w.showFullScreen();
+    w.show();
+    //w.showFullScreen();
 #endif
     //cout << "window showed." << endl;
 

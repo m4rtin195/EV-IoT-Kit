@@ -214,7 +214,7 @@ int Broadcaster::_broadcastSerial(uint8_t* payload)
         sprintf(&ATcommand[6+(i*2)], "%02x", payload[i]);
     ATcommand[30] = 0x0A;
 
-    /*//debug
+    //debug
     printf("\n data: ");
     for(int i=0; i<12; i++)
         printf("%2d: 0x%02X ", i+1, payload[i]);
@@ -222,9 +222,10 @@ int Broadcaster::_broadcastSerial(uint8_t* payload)
     printf("\n command: ");
     for(int i=0; i<31; i++)
         printf("%c", ATcommand[i]);
-    cout << endl;*/
+    cout << endl;
+    //
 
-    serial.flushReceiver();
+    if(serial.flushReceiver() == 0) cout << "Flush failed!!!!!!!" << endl;
     status = serial.writeBytes(ATcommand,31);
     if(status!=1) return status;
     else cout << "[>] Broadcasting..." << endl;
@@ -233,6 +234,7 @@ int Broadcaster::_broadcastSerial(uint8_t* payload)
     int val = serial.readString(answ,'\n',20,10000);  //wait 8sec for transmission and ack
     if(val>0)
     {
+        cout << "answ: [" << answ << "]" << endl;
         if(strncmp(answ,"OK\r\n",4)==0)
             status = OK;
         else
@@ -242,7 +244,7 @@ int Broadcaster::_broadcastSerial(uint8_t* payload)
             status = UNKNOWN_REPLY;
         }
     }
-    else //val<0
+    else //val<0 = no reply from modem
     {
         if(val==0) status = NO_REPLY;
         else status = val;
@@ -347,8 +349,8 @@ Connectivity Broadcaster::getConnectivity()
     if(availConnectivity == 0)
         return Connectivity::None;
 
-    if(availConnectivity & (1 << Connectivity::Wifi)) //Wifi (and maybe Sigfox)
-        return Connectivity::Wifi;
+    //if(availConnectivity & (1 << Connectivity::Wifi)) //Wifi (and maybe Sigfox)
+        //return Connectivity::Wifi;
 
     else if(availConnectivity & (1 << Connectivity::Sigfox)) //Sigfox only
         return Connectivity::Sigfox;
