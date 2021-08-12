@@ -224,7 +224,8 @@ int Broadcaster::_broadcastSerial(uint8_t* payload)
         printf("%c", ATcommand[i]);
     cout << endl;*/
 
-    serial.flushReceiver();
+    //serial.flushReceiver();
+    _resetAT();
     status = serial.writeBytes(ATcommand,31);
     if(status!=1) return status;
     else cout << "[>] Broadcasting..." << endl;
