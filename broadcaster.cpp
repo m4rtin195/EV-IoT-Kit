@@ -9,7 +9,7 @@ Broadcaster::Broadcaster(Vehicle* vehicle) : QThread()
     /// init setial port
     int status = serial.openDevice(SERIAL_PORT_NAME, 9600);
     cout << "opening port, status: " << status << endl;
-    if(status != 1) {cout << "[!] Serial port initialization failed." << endl;}
+    if(status != 1) {cout << "[!] Serial port opening failed." << endl;}
 
     /// init modem
     if(int st = _resetAT()) {cout << "[!] Modem not ready. (" << st << ")" << endl;}
@@ -19,6 +19,7 @@ Broadcaster::Broadcaster(Vehicle* vehicle) : QThread()
 
     _checkConnectivity();
     this->QThread::start();
+    cout << "constructor thread: " << QThread::currentThreadId() << endl;
 }
 
 Broadcaster::~Broadcaster()
@@ -39,36 +40,22 @@ void Broadcaster::enabled(bool b)
 // override
 void Broadcaster::run()
 {
+    cout << "run thread: " << QThread::currentThreadId() << endl;
     cout << "[i] Broadcaster thread started." << endl;
     this->exec(); //run the event loop
 }
 
-// high level public do broadcast
+// tick, do broadcast
+// return: 0=no connectivity, 1=success via sigfox, 2=success via wifi,
+//        -1,-2=serial error, -3=unknown reply, -4=no reply, -5=skipped, -9=network error,
+//        -10=wrong values, -20=not implemented, >100=httpcode
 void Broadcaster::broadcast(bool priority)
 {
     // todo timing here
     if(priority != true && (v->state == Vehicle::Off)) return;
     if(priority != true && (v->state == Vehicle::Idle)) return;
 
-
-    int status = _broadcast();
-    emit broadcastCompleted(status);
-}
-
-// low level do broadcast
-// return: 1=success via sigfox, 2=success via wifi, 0=no connectivity,
-//        -1,-2=serial error, -3=unknown reply, -4=no reply, -5=skipped, -9=network error,
-//        -10=wrong values, -20=not implemented, >100=httpcode
-int Broadcaster::_broadcast()
-{
     int status;
-    uint8_t frame[12];
-    memset(frame, 0, 12);
-    if(_buildSigfoxFrame(frame) != 0)
-    {
-        cout << "[!] Failed to create frame." << endl;
-        return -10;
-    }
 
     _checkConnectivity();
     switch(getConnectivity())
@@ -76,28 +63,43 @@ int Broadcaster::_broadcast()
         case None:
         {
             cout << "[X] Device Offline." << endl;
-            return 0;
+            status = 0;
+            break;
         }
+
         case Sigfox:
         {
+            //skip broadcasts for sigfox
+            static int a = SIGFOX_INTERVAL; //interval match counter
+            if((priority != true) && (a++ < SIGFOX_INTERVAL)) //this broadcasting is not priority and didnt match interval
+            {
+                status = -5;
+                break;
+            }
+
+            a=0; //interval match -> reset counter
             cout << "broadcasting via sigfox" << endl;
-            status = _broadcastSerial(frame);
+            status = _broadcastSerial();
             if(status == 0) status = 1; //remap
-            return status;
+            break;
         }
+
         case Wifi:
         {
             cout << "broadcasting via wifi" << endl;
-            status = _broadcastInternet(frame);
+            status = _broadcastInternet();
             if(status == 0) status = 2; //remap
-            return status;
+            break;
         }
+
         default:
         {
             cout << "unknown connectivity mask" << endl;
-            return -20;
+            status = -20;
         }
     }
+
+    emit broadcastCompleted(status);
 }
 
 // return: 0=ok, 1=impossible values, 2=values too big
@@ -198,15 +200,17 @@ int Broadcaster::_buildSigfoxFrame(uint8_t* frame)
     return 0;
 }
 
-//return: 0=success, -1,-2=serial error, -3=unknown reply, -4=no reply -5=skipped
-int Broadcaster::_broadcastSerial(uint8_t* payload)
-{
-    //skip broadcasts for sigfox
-    static int a = SIGFOX_INTERVAL;
-    if(a++ < SIGFOX_INTERVAL) return -5;
-    else a=0;
-
+//return: 0=success, -1,-2=serial error, -3=unknown reply, -4=no reply
+int Broadcaster::_broadcastSerial()
+{   
     int status = INT_MAX;
+    uint8_t payload[12];
+    memset(payload, 0, 12);
+    if(_buildSigfoxFrame(payload) != 0)
+    {
+        cout << "[!] Failed to create frame." << endl;
+        return -10;
+    }
 
     char ATcommand[32];
     memcpy(&ATcommand[0], "AT$SF=", 6);
@@ -215,7 +219,7 @@ int Broadcaster::_broadcastSerial(uint8_t* payload)
     ATcommand[30] = 0x0D;
     ATcommand[31] = 0x0A;
 
-    //debug
+    /*//debug
     printf("\n data: ");
     for(int i=0; i<12; i++)
         printf("%2d: 0x%02X ", i+1, payload[i]);
@@ -224,25 +228,17 @@ int Broadcaster::_broadcastSerial(uint8_t* payload)
     for(int i=0; i<32; i++)
         printf("%c", ATcommand[i]);
     cout << endl;
-    //
+    //*/
 
-    /// PRED VYSIELANIM ///
-    cout << "////// idem vysielat //////" << endl;
-
-    if(serial.flushReceiver() == 0) cout << "Flush1 failed!!!!!!!" << endl;
-    if(_resetAT()) {cout << "neviem resetovat AT lebo som kokot." << endl;}
-    if(serial.flushReceiver() == 0) cout << "Flush2 failed!!!!!!!" << endl;
-
-
+    serial.flushReceiver();
     status = serial.writeBytes(ATcommand,32);
     if(status!=1) return status;
-    else cout << "[>] Broadcasting..." << endl;
+    else cout << "[>] Broadcasting..." << endl; cout << "in thread: " << QThread::currentThreadId() << endl;
 
     char answ[20];
     int val = serial.readString(answ,'\n',20,10000);  //wait 10sec for transmission and ack
     if(val>0)
     {
-        cout << "answ: [" << answ << "]" << endl;
         if(strncmp(answ,"OK\r\n",4)==0)
             status = OK;
         else
@@ -260,31 +256,35 @@ int Broadcaster::_broadcastSerial(uint8_t* payload)
     return status;
 }
 
+//return: 0=OK, -3=unknown reply (too long), -4=no reply
 int Broadcaster::_resetAT()
 {
-    char answ[20] = {0};
+    //for breaking potential valid previous input
+    serial.writeChar(0xff);
+    serial.writeChar('\n');
+    QThread::msleep(100);
     serial.flushReceiver();
 
-    serial.writeChar(0xff);     //for breaking potential valid previous input
-    serial.writeChar('\n');     //enter
+    //test
     serial.writeString("AT\r\n");
 
-    int val = serial.readString(answ,'\n',8,2000);
-    if(val==0)
-        return NO_REPLY;
-    if(strncmp(answ,"OK\r\n",4)==0 || strncmp(answ,"OK\r\nOK\r\n",8)==0)
-        return OK;
+    char answ[20] = {0};
+    int st = serial.readString(answ,'\n',4,2000);  //max 4 chars - "OK\r\n", 2sec timeout
 
-    return val;
+    if(st==0) //timeout reached
+        return NO_REPLY;
+    else if(strncmp(answ,"OK\n",3)==0 || strncmp(answ,"OK\r\n",4)==0)
+        return OK;
+    else
+        return st; //not "OK" reply
 }
 
 //return: 0=success, -9=unknown error, other=httpcode
-int Broadcaster::_broadcastInternet(uint8_t* payload)
+int Broadcaster::_broadcastInternet()
 {
     QJsonObject body;
     body.insert("timestamp", QJsonValue(QDateTime::currentMSecsSinceEpoch()));
     body.insert("vehicleId", QJsonValue(v->vehicleId.c_str()));
-    body.insert("rawdata", QJsonValue(*payload));
     body.insert("encoded", QJsonValue(false));      //if floats are encoded to half
     body.insert("advanced", QJsonValue(true));
     body.insert("connectivity", QJsonValue(1));
@@ -330,7 +330,7 @@ int Broadcaster::_broadcastInternet(uint8_t* payload)
 //returns available connectivity mask
 int Broadcaster::_checkConnectivity()
 {
-    cout << "checking connectivity....";
+    //cout << "checking connectivity....";
     int connectivity = 0;
 
     //Wifi
@@ -352,11 +352,11 @@ int Broadcaster::_checkConnectivity()
         availConnectivity = connectivity;
         emit connectivityChanged(connectivity);
     }
-    cout << connectivity << endl;
+    //cout << connectivity << endl;
     return connectivity;
 }
 
-//returns used (top-priority) connectivity
+//returns used (top-priority) Connectivity upon last _checkConnectivity()
 Connectivity Broadcaster::getConnectivity()
 {
     if(availConnectivity == 0)

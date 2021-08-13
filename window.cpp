@@ -4,6 +4,7 @@
 Window::Window(QWidget *parent) : QWidget(parent), ui(new Ui::Window)
 {
     ui->setupUi(this);
+    cout << "ui thread: " << QThread::currentThreadId() << endl;
 
     /**/
     // Set up ThreadLogStream, which redirect cout to signal sendLogString

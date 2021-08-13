@@ -57,9 +57,8 @@ private:
     int _checkValues();
     int _buildSigfoxFrame(uint8_t* frame);
     int _checkConnectivity();
-    int _broadcast();
-    int _broadcastSerial(uint8_t* payload);
-    int _broadcastInternet(uint8_t* payload);
+    int _broadcastSerial();
+    int _broadcastInternet();
     int _resetAT();
 
 signals:
