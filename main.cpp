@@ -29,3 +29,6 @@ int main(int argc, char *argv[])
     //cout << "app.exec()" << endl;
     return app.exec();
 }
+
+//TODO skipuje sigf vysielanie pri priorite (zmene stavov)
+//TODO pri off > idle si vymysli ine napatie

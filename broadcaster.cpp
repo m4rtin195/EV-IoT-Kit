@@ -12,7 +12,7 @@ Broadcaster::Broadcaster(Vehicle* vehicle) : QThread()
     if(status != 1) {cout << "[!] Serial port initialization failed." << endl;}
 
     /// init modem
-    if(_resetAT()) {cout << "[!] Modem not ready." << endl;}
+    if(int st = _resetAT()) {cout << "[!] Modem not ready. (" << st << ")" << endl;}
 
     tickTimer = new QTimer(this);
     connect(tickTimer, SIGNAL(timeout()), this, SLOT(broadcast()));
@@ -208,11 +208,12 @@ int Broadcaster::_broadcastSerial(uint8_t* payload)
 
     int status = INT_MAX;
 
-    char ATcommand[31];
+    char ATcommand[32];
     memcpy(&ATcommand[0], "AT$SF=", 6);
     for(int i=0; i<12; i++)
         sprintf(&ATcommand[6+(i*2)], "%02x", payload[i]);
-    ATcommand[30] = 0x0A;
+    ATcommand[30] = 0x0D;
+    ATcommand[31] = 0x0A;
 
     /*//debug
     printf("\n data: ");
@@ -220,13 +221,13 @@ int Broadcaster::_broadcastSerial(uint8_t* payload)
         printf("%2d: 0x%02X ", i+1, payload[i]);
 
     printf("\n command: ");
-    for(int i=0; i<31; i++)
+    for(int i=0; i<32; i++)
         printf("%c", ATcommand[i]);
     cout << endl;*/
 
     //serial.flushReceiver();
     _resetAT();
-    status = serial.writeBytes(ATcommand,31);
+    status = serial.writeBytes(ATcommand,32);
     if(status!=1) return status;
     else cout << "[>] Broadcasting..." << endl;
 
@@ -253,14 +254,20 @@ int Broadcaster::_broadcastSerial(uint8_t* payload)
 
 int Broadcaster::_resetAT()
 {
-    char answ[20];
-    serial.flushReceiver();
-    serial.writeString("AT\n");
-    serial.writeString("AT\n");
+    char answ[20] = {0};
 
-    int val = serial.readString(answ,'\n',6,2000);
-    if(val==0) return NO_REPLY;
-    if(strncmp(answ,"OK\r\n",3)==0 || strncmp(answ,"OK\r\nOK\r\n",6)==0) return OK;
+    serial.flushReceiver();
+    //serial.writeString("AT\n");
+    serial.writeChar(0xff);     //for breaking potential valid previous input
+    serial.writeChar('\n');     //enter
+    serial.writeString("AT\r\n");
+
+    int val = serial.readString(answ,'\n',8,2000);
+    if(val==0)
+        return NO_REPLY;
+    if(strncmp(answ,"OK\r\n",4)==0 || strncmp(answ,"OK\r\nOK\r\n",8)==0)
+        return OK;
+
     return val;
 }
 
@@ -348,8 +355,8 @@ Connectivity Broadcaster::getConnectivity()
     if(availConnectivity == 0)
         return Connectivity::None;
 
-    if(availConnectivity & (1 << Connectivity::Wifi)) //Wifi (and maybe Sigfox)
-        return Connectivity::Wifi;
+    //if(availConnectivity & (1 << Connectivity::Wifi)) //Wifi (and maybe Sigfox)
+        //return Connectivity::Wifi;
 
     else if(availConnectivity & (1 << Connectivity::Sigfox)) //Sigfox only
         return Connectivity::Sigfox;
