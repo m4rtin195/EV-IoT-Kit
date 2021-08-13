@@ -233,9 +233,10 @@ int Broadcaster::_broadcastSerial(uint8_t* payload)
     if(_resetAT()) {cout << "neviem resetovat AT lebo som kokot." << endl;}
     if(serial.flushReceiver() == 0) cout << "Flush2 failed!!!!!!!" << endl;
 
-    status = serial.writeBytes(ATcommand,31);
-    if(status!=1) return status;                      //1 = writing ok
-    else {printf("[>] BroadcastingA...  "); cout << "[>] BroadcastingB..." << endl;}
+
+    status = serial.writeBytes(ATcommand,32);
+    if(status!=1) return status;
+    else cout << "[>] Broadcasting..." << endl;
 
     char answ[20];
     int val = serial.readString(answ,'\n',20,10000);  //wait 10sec for transmission and ack
