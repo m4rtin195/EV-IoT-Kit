@@ -40,9 +40,11 @@ Window::Window(QWidget *parent) : QWidget(parent), ui(new Ui::Window)
     connect(broadcaster, SIGNAL(broadcastCompleted(int)), logger, SLOT(broadcastCompleted(int)));
     connect(broadcaster, SIGNAL(connectivityChanged(int)), this, SLOT(updateUI()));
 
-
     connect(this, &Window::broadcasterEnablingRequest, broadcaster, &Broadcaster::enable);
     connect(this, &Window::simulatorEnablingRequest, simulator, &Simulator::enable);
+
+    connect(ui->scrollBar, SIGNAL(actionTriggered(int)), this, SLOT(on_scrollBar_actionTriggered_custom(int)), Qt::QueuedConnection);
+    //default by QtDesigner is DirectConnection interrupts running methods and causes complicated recursive locks
 
     simulator->setInitialValues();
     updateUI();
@@ -196,13 +198,13 @@ void Window::on_button_exit_clicked()
 }
 
 
-void Window::on_scrollBar_sliderMoved(int position)
+void Window::on_scrollBar_actionTriggered_custom(int action)
 {
     if(updatingLock) return; //todo vymaz
 
     cout << "----------------------------" << endl;
     updatingLock = true; cout << "**LOCKED**" << endl;
-    simulator->setCharge(position);
+    simulator->setCharge(ui->scrollBar->value());
     updatingLock = false; cout << "**UNLOCKED**" << endl;
 }
 

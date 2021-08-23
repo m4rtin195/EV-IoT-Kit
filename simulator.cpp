@@ -198,7 +198,8 @@ int Simulator::setState(Vehicle::State newState, float _current, float _target_c
 
 void Simulator::setCharge(float level)
 {
-    v->readwriteLock->tryLockForWrite(100);
+    cout << "locking for wr in thr: " << QThread::currentThreadId() << endl;
+    v->readwriteLock->lockForWrite();
     v->charge = level;
     v->readwriteLock->unlock();
 cout << "imhere" << endl;

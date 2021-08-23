@@ -55,7 +55,7 @@ private slots:
     void on_button_ampMinus_clicked();
     void on_button_ampPlus_clicked();
     void on_button_exit_clicked();
-    void on_scrollBar_sliderMoved(int position);
+    void on_scrollBar_actionTriggered_custom(int action);
     void on_scrollBar_sliderPressed();
     void on_scrollBar_sliderReleased();
 };

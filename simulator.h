@@ -14,7 +14,7 @@
 #include "vehicle.h"
 
 // config
-#define SIMULATION_INTERVAL 1000    // interval of simulation of new values [ms]
+#define SIMULATION_INTERVAL 5000    // interval of simulation of new values [ms]
 #define TIME_SPEED 60               // for DEMO - count seconds as minutes /change to 1 in production //TODO premaz
 // /////
 

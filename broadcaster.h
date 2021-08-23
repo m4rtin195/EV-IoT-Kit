@@ -16,7 +16,7 @@
 #define BROADCAST_INTERVAL 10000    // interval of broadcasting attempts [ms]
 #define SIGFOX_INTERVAL 0           // broadcasting via sigfox [each x broadcast attempt] //TODO 0-1
 #if defined (_WIN32) || defined (_WIN64)
-    #define SERIAL_PORT_NAME "COM3" // serial port name //win: COM0  rpi: /dev/ttyAMA1
+    #define SERIAL_PORT_NAME "COM30" // serial port name //win: COM0  rpi: /dev/ttyAMA1
 #endif
 #if defined (__linux__)
     #define SERIAL_PORT_NAME "/dev/ttyAMA1"
