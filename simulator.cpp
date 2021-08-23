@@ -24,7 +24,7 @@ Simulator::~Simulator()
 
 // starts or stops timer which invokes _simulate()
 void Simulator::enable(bool b)
-{cout << "simulator switch" << endl;
+{
     if(b)
         tickTimer->start(SIMULATION_INTERVAL);
     else
@@ -67,7 +67,6 @@ void Simulator::setInitialValues()
 /// simulate new values
 void Simulator::_simulate()
 {
-    cout << "simulating in thr" << QThread::currentThreadId() << endl;
     switch(v->state)
     {
         case Vehicle::Off:
@@ -115,7 +114,7 @@ void Simulator::_simulate()
         }
     }
 
-    emit redrawRequest(); cout<<"simulation complete" << endl;
+    emit redrawRequest();
 }
 
 //public, call internal one trouch signal to separate trheads (calls from ui)
@@ -198,11 +197,10 @@ int Simulator::setState(Vehicle::State newState, float _current, float _target_c
 
 void Simulator::setCharge(float level)
 {
-    cout << "locking for wr in thr: " << QThread::currentThreadId() << endl;
     v->readwriteLock->lockForWrite();
     v->charge = level;
     v->readwriteLock->unlock();
-cout << "imhere" << endl;
+
     emit _simulateRequest(); //calls redrawRequest inside
 }
 

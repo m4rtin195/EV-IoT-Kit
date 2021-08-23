@@ -44,7 +44,7 @@ Window::Window(QWidget *parent) : QWidget(parent), ui(new Ui::Window)
     connect(this, &Window::simulatorEnablingRequest, simulator, &Simulator::enable);
 
     connect(ui->scrollBar, SIGNAL(actionTriggered(int)), this, SLOT(on_scrollBar_actionTriggered_custom(int)), Qt::QueuedConnection);
-    //default by QtDesigner is DirectConnection interrupts running methods and causes complicated recursive locks
+    //default by QtDesigner is DirectConnection which interrupts running methods and causes complicated recursive locks
 
     simulator->setInitialValues();
     updateUI();
@@ -83,8 +83,7 @@ void Window::QMessageOutput(QtMsgType, const QMessageLogContext &, const QString
 
 void Window::updateUI()
 {
-    cout<<"updateUI from thr: " << QThread::currentThreadId() << endl;
-    v->readwriteLock->lockForRead();cout<<"ui locked" << endl;
+    v->readwriteLock->lockForRead();
     QString s;
     if(v == nullptr) {cout << "v is null"; return;}
 
@@ -139,7 +138,7 @@ void Window::updateUI()
     ui->label_connectivity->setText(s);
 
     cout << "thr: " << QThread::currentThreadId() << endl;
-    v->readwriteLock->unlock(); cout<<"ui unlocked" << endl; //unlock from diff thread
+    v->readwriteLock->unlock();
 }
 
 
@@ -192,25 +191,14 @@ void Window::on_button_ampPlus_clicked()
     simulator->setCurrent(newCurrent);
 }
 
-void Window::on_button_exit_clicked()
-{
-    qApp->exit();
-}
-
-
 void Window::on_scrollBar_actionTriggered_custom(int action)
 {
-    if(updatingLock) return; //todo vymaz
-
-    cout << "----------------------------" << endl;
-    updatingLock = true; cout << "**LOCKED**" << endl;
     simulator->setCharge(ui->scrollBar->value());
-    updatingLock = false; cout << "**UNLOCKED**" << endl;
 }
 
 static bool savedState;
 
-void Window::on_scrollBar_sliderPressed() //TODO preco do pici preskakuju hodnoty na nizkich cislach
+void Window::on_scrollBar_sliderPressed()
 {
     savedState = simulator->isEnabled();
     emit simulatorEnablingRequest(false);
@@ -221,3 +209,7 @@ void Window::on_scrollBar_sliderReleased()
     emit simulatorEnablingRequest(savedState);
 }
 
+void Window::on_button_exit_clicked()
+{
+    qApp->exit();
+}
