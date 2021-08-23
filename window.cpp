@@ -4,44 +4,69 @@
 Window::Window(QWidget *parent) : QWidget(parent), ui(new Ui::Window)
 {
     ui->setupUi(this);
-    cout << "ui thread: " << QThread::currentThreadId() << endl;
+    ui->button_off->setFocus(); //default focus
+    //cout << "ui thread: " << QThread::currentThreadId() << endl;
 
     /**/
     // Set up ThreadLogStream, which redirect cout to signal sendLogString
     // Set up  MessageHandler,  wgucg catch message from sendLogString and Display
     //m_qd = new ThreadLogStream(std::cout); //Redirect Console output to QTextEdit
     //this->msgHandler = new MessageHandler(this->ui->logboard, this);
-    connect(m_qd, &ThreadLogStream::sendLogString, msgHandler, &MessageHandler::catchMessage);
+    //connect(m_qd, &ThreadLogStream::sendLogString, msgHandler, &MessageHandler::catchMessage);
     /**/
 
     cout << "Initialization..." << endl;
+    cout << "ui thread: " << QThread::currentThreadId() << endl;
 
     vehicle = new Vehicle(); v = vehicle;
     logger = new Logger(vehicle);
     broadcaster = new Broadcaster(vehicle);
     simulator = new Simulator(vehicle);
-    QThread::msleep(100); //vypisy z thread
 
-    connect(simulator, SIGNAL(logRequest(bool,bool)), logger, SLOT(logRequest(bool,bool)));
+    connect(&broadcasterThread, &QThread::started, [](){cout << "[i] Broadcaster thread started. (" << QThread::currentThreadId() << ")" << endl;});
+    connect(&simulatorThread, &QThread::started, [](){cout << "[i] Simulator thread started. (" << QThread::currentThreadId() << ")" << endl;});
+
+    broadcaster->moveToThread(&broadcasterThread);
+    broadcasterThread.setObjectName("Broadcaster Thread");
+    broadcasterThread.start();
+    simulator->moveToThread(&simulatorThread);
+    simulatorThread.setObjectName("Simulator Thread");
+    simulatorThread.start();
+    QThread::msleep(100); //vypisy
+
+    connect(simulator, SIGNAL(logRequest(bool,bool)), logger, SLOT(logRequestSlot(bool,bool)));
     connect(simulator, SIGNAL(redrawRequest()), this, SLOT(updateUI()));
     connect(simulator, SIGNAL(broadcastRequest(bool)), broadcaster, SLOT(broadcast(bool)));
     connect(broadcaster, SIGNAL(broadcastCompleted(int)), logger, SLOT(broadcastCompleted(int)));
     connect(broadcaster, SIGNAL(connectivityChanged(int)), this, SLOT(updateUI()));
 
+
+    connect(this, &Window::broadcasterEnablingRequest, broadcaster, &Broadcaster::enable);
+    connect(this, &Window::simulatorEnablingRequest, simulator, &Simulator::enable);
+
     simulator->setInitialValues();
     updateUI();
-    cout << endl << "--- time ----- voltage ----- charge -- elapsed | remaining ------- range ---" << endl;
+    cout << endl << "--- time ---- voltage ------ charge -- elapsed | remaining ------- range ---" << endl;
     //               * 15:48:20     665,3V     65,3% of 80%     (0m / 8h,4m)            326km
-    logger->logRequest(briefly, priority_now);
+    logger->log(briefly);
 
     ///demo
     //simulator->setState(Vehicle::Charging, 250, 70);
-    //simulator->enabled(true);
-    //broadcaster->enabled(true);
+    //simulator->enabled(true); //
+    //broadcaster->enabled(true); //volat cez emit
 }
 
 Window::~Window()
 {
+    emit broadcasterEnablingRequest(false);
+    emit simulatorEnablingRequest(false);
+    QThread::msleep(100); //wait for other threads to stop timers
+
+    broadcasterThread.quit();   //NOTE .terminate() nefunguje na rpi, blokne vlakno a nikdy neskonci
+    broadcasterThread.wait(500);
+    simulatorThread.quit();
+    simulatorThread.wait();
+
     delete ui;
     delete logger;
     delete simulator;
@@ -56,8 +81,10 @@ void Window::QMessageOutput(QtMsgType, const QMessageLogContext &, const QString
 
 void Window::updateUI()
 {
-    if(v == nullptr) {cout << "v is null"; return;}
+    cout<<"updateUI from thr: " << QThread::currentThreadId() << endl;
+    v->readwriteLock->lockForRead();cout<<"ui locked" << endl;
     QString s;
+    if(v == nullptr) {cout << "v is null"; return;}
 
     if((v->state == Vehicle::Charging) || (v->state == Vehicle::Driving))
     {
@@ -108,6 +135,9 @@ void Window::updateUI()
         case Connectivity::Wifi: s = "Wi-Fi"; break;
     }
     ui->label_connectivity->setText(s);
+
+    cout << "thr: " << QThread::currentThreadId() << endl;
+    v->readwriteLock->unlock(); cout<<"ui unlocked" << endl; //unlock from diff thread
 }
 
 
@@ -116,39 +146,48 @@ void Window::updateUI()
 void Window::on_button_off_clicked()
 {
     simulator->setState(Vehicle::Off);
-    simulator->enabled(false);
-    broadcaster->enabled(false);
+    emit broadcasterEnablingRequest(false);
+    emit simulatorEnablingRequest(false);
 }
 
 void Window::on_button_idle_clicked()
 {
     simulator->setState(Vehicle::Idle);
-    simulator->enabled(true);
-    broadcaster->enabled(true);
+    emit broadcasterEnablingRequest(true);
+    emit simulatorEnablingRequest(true);
+    //simulator->enabled(true);
+    //broadcaster->enabled(true); //TODO spravit ako internal call connect _enabled
 }
 
 void Window::on_button_charging_clicked()
 {
     simulator->setState(Vehicle::Charging, 120, 85);
-    simulator->enabled(true);
-    broadcaster->enabled(true);
+    emit broadcasterEnablingRequest(true);
+    emit simulatorEnablingRequest(true);
 }
 
 void Window::on_button_driving_clicked()
 {
     simulator->setState(Vehicle::Driving, -20);
-    simulator->enabled(true);
-    broadcaster->enabled(true);
+    //emit simulator->setStateRequest(Vehicle::Driving, -20);
+    emit broadcasterEnablingRequest(true);
+    emit simulatorEnablingRequest(true);
 }
 
 void Window::on_button_ampMinus_clicked()
 {
-    simulator->setCurrent(v->current - 20);
+    v->readwriteLock->lockForRead();
+    float newCurrent = v->current - 20;
+    v->readwriteLock->unlock();
+    simulator->setCurrent(newCurrent);
 }
 
 void Window::on_button_ampPlus_clicked()
 {
-    simulator->setCurrent(v->current + 20);
+    v->readwriteLock->lockForRead();
+    float newCurrent = v->current + 20;
+    v->readwriteLock->unlock();
+    simulator->setCurrent(newCurrent);
 }
 
 void Window::on_button_exit_clicked()
@@ -156,9 +195,27 @@ void Window::on_button_exit_clicked()
     qApp->exit();
 }
 
+
 void Window::on_scrollBar_sliderMoved(int position)
 {
+    if(updatingLock) return; //todo vymaz
+
+    cout << "----------------------------" << endl;
+    updatingLock = true; cout << "**LOCKED**" << endl;
     simulator->setCharge(position);
-    updateUI();
+    updatingLock = false; cout << "**UNLOCKED**" << endl;
+}
+
+static bool savedState;
+
+void Window::on_scrollBar_sliderPressed() //TODO preco do pici preskakuju hodnoty na nizkich cislach
+{
+    savedState = simulator->isEnabled();
+    emit simulatorEnablingRequest(false);
+}
+
+void Window::on_scrollBar_sliderReleased()
+{
+    emit simulatorEnablingRequest(savedState);
 }
 

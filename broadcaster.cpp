@@ -2,7 +2,7 @@
 
 #define is_big_endian (*(uint16_t *)"\0\xff" < 0x100)
 
-Broadcaster::Broadcaster(Vehicle* vehicle) : QThread()
+Broadcaster::Broadcaster(Vehicle* vehicle) : QObject()
 {
     v = vehicle;
 
@@ -18,18 +18,15 @@ Broadcaster::Broadcaster(Vehicle* vehicle) : QThread()
     connect(tickTimer, SIGNAL(timeout()), this, SLOT(broadcast()));
 
     _checkConnectivity();
-    this->QThread::start();
-    cout << "constructor thread: " << QThread::currentThreadId() << endl;
 }
 
 Broadcaster::~Broadcaster()
 {
     serial.closeDevice();
-    this->quit();
-    this->wait();
 }
 
-void Broadcaster::enabled(bool b)
+// starts or stops timer which invokes broadcast()
+void Broadcaster::enable(bool b)
 {
     if(b)
         tickTimer->start(BROADCAST_INTERVAL);
@@ -37,23 +34,24 @@ void Broadcaster::enabled(bool b)
         tickTimer->stop();
 }
 
-// override
-void Broadcaster::run()
+bool Broadcaster::isEnabled()
 {
-    cout << "run thread: " << QThread::currentThreadId() << endl;
-    cout << "[i] Broadcaster thread started." << endl;
-    this->exec(); //run the event loop
+    return tickTimer->isActive();
 }
 
-// tick, do broadcast
-// return: 0=no connectivity, 1=success via sigfox, 2=success via wifi,
-//        -1,-2=serial error, -3=unknown reply, -4=no reply, -5=skipped, -9=network error,
-//        -10=wrong values, -20=not implemented, >100=httpcode
+
+/// tick, do broadcast
+// emits: 0=no connectivity, 1=success via sigfox, 2=success via wifi,
+//       -1,-2=serial error, -3=unknown reply, -4=no reply, -5=skipped, -9=network error,
+//       -10=wrong values, -20=not implemented, >100=httpcode
 void Broadcaster::broadcast(bool priority)
 {
-    // todo timing here
+    // TODO timing here
+    v->readwriteLock->lockForRead();
     if(priority != true && (v->state == Vehicle::Off)) return;
     if(priority != true && (v->state == Vehicle::Idle)) return;
+
+    v->readwriteLock->unlock();
 
     int status;
 
@@ -105,22 +103,26 @@ void Broadcaster::broadcast(bool priority)
 // return: 0=ok, 1=impossible values, 2=values too big
 int Broadcaster::_checkValues()
 {
-    if(v->state > 3) return 1;
-    if(v->charge > 100) return 1;
-    if(v->target_charge > 100.0) return 1;
-    if(v->current > 1023.0) return 2;
-    if(v->elapsed_time > 8191) return 2;  //5.68 days
-    if(v->remaining_time > 8191) return 2;
-    if(v->range > 2047) return 2;
+    v->readwriteLock->lockForRead();
+
+    int st = 0;
+    if(v->state > 3) st = 1;
+    if(v->charge > 100) st = 1;
+    if(v->target_charge > 100.0) st = 1;
+    if(v->current > 1023.0) st = 2;
+    if(v->elapsed_time > 8191) st = 2;  //5.68 days
+    if(v->remaining_time > 8191) st = 2;
+    if(v->range > 2047) st = 2;
     //if(v->elec_consumption);   //no need to check
     //if(v->indoor_temp);        //no need to check
 
     //if(v->outdoor_temp);
     //if(v->desired_temp);
-    if(v->max_current > 1023.0) return 2;
-    //if(v->location) return 1; //regex?
+    if(v->max_current > 1023.0) st = 2;
+    //if(v->location) status = 1; //regex?
 
-    return 0;
+    v->readwriteLock->unlock();
+    return st;
 }
 
 //return: same as _checkValues()
@@ -129,11 +131,14 @@ int Broadcaster::_buildSigfoxFrame(uint8_t* frame)
     //uint8_t payload[12];
     //memset(payload, 0, 12);
     uint32_t p1=0, p2=0, p3=0;
-    void* tmpptr = 0;
+    void* tmpptr = nullptr;
 
     //check values are in processable bounds
-    if(int st = _checkValues() != 0)
+    int st = _checkValues();
+    if(st != 0)
         return st;
+
+    v->readwriteLock->lockForRead();
 
     /// build frame
     //state
@@ -184,6 +189,7 @@ int Broadcaster::_buildSigfoxFrame(uint8_t* frame)
     uint16_t _indoor_temp_i = *(uint16_t*)tmpptr;
     p3 |= (_indoor_temp_i & 0xFFFF) << 0;
 
+    v->readwriteLock->unlock();
 
     //swap byte order
     if(!is_big_endian)
@@ -206,9 +212,10 @@ int Broadcaster::_broadcastSerial()
     int status = INT_MAX;
     uint8_t payload[12];
     memset(payload, 0, 12);
-    if(_buildSigfoxFrame(payload) != 0)
+    int st = _buildSigfoxFrame(payload);
+    if(st != 0)
     {
-        cout << "[!] Failed to create frame." << endl;
+        cout << "[!] Failed to create frame. (" << st << ")" << endl;
         return -10;
     }
 
@@ -233,7 +240,7 @@ int Broadcaster::_broadcastSerial()
     serial.flushReceiver();
     status = serial.writeBytes(ATcommand,32);
     if(status!=1) return status;
-    else cout << "[>] Broadcasting..." << endl; cout << "in thread: " << QThread::currentThreadId() << endl;
+    else cout << "[>] Broadcasting..." << endl;
 
     char answ[20];
     int val = serial.readString(answ,'\n',20,10000);  //wait 10sec for transmission and ack
@@ -282,6 +289,12 @@ int Broadcaster::_resetAT()
 //return: 0=success, -9=unknown error, other=httpcode
 int Broadcaster::_broadcastInternet()
 {
+    //check values are in processable bounds
+    if(int st = _checkValues() != 0)
+        return st;
+
+    v->readwriteLock->lockForRead();
+
     QJsonObject body;
     body.insert("timestamp", QJsonValue(QDateTime::currentMSecsSinceEpoch()));
     body.insert("vehicleId", QJsonValue(v->vehicleId.c_str()));
@@ -290,20 +303,21 @@ int Broadcaster::_broadcastInternet()
     body.insert("connectivity", QJsonValue(1));
 
     body.insert("state", QJsonValue(v->state));
-    body.insert("current_charge", QJsonValue((int)v->charge));
-    body.insert("target_charge", QJsonValue((int)v->target_charge));
-    body.insert("current", QJsonValue(v->current));
+    body.insert("current_charge", QJsonValue(static_cast<int>(v->charge)));
+    body.insert("target_charge", QJsonValue(static_cast<int>(v->target_charge)));
+    body.insert("current", QJsonValue(static_cast<double>(v->current)));
     body.insert("elapsed_time", QJsonValue(v->elapsed_time));
     body.insert("remain_time", QJsonValue(v->remaining_time));
     body.insert("range", QJsonValue(v->range));
-    body.insert("elec_consumption", QJsonValue(v->elec_consumption));
-    body.insert("indoor_temp", QJsonValue(v->indoor_temp));
+    body.insert("elec_consumption", QJsonValue(static_cast<double>(v->elec_consumption)));
+    body.insert("indoor_temp", QJsonValue(static_cast<double>(v->indoor_temp)));
 
-    body.insert("outdoor_temp", QJsonValue(v->outdoor_temp)); //NOTE demo
-    body.insert("desired_temp", QJsonValue(v->desired_temp));
-    body.insert("max_current", QJsonValue(v->max_current));
+    body.insert("outdoor_temp", QJsonValue(static_cast<double>(v->outdoor_temp))); //NOTE demo
+    body.insert("desired_temp", QJsonValue(static_cast<double>(v->desired_temp)));
+    body.insert("max_current", QJsonValue(static_cast<double>(v->max_current)));
     body.insert("location", QJsonValue(v->location.c_str()));
 
+    v->readwriteLock->unlock();
     QJsonDocument doc(body);
     QByteArray _body = doc.toJson();
     //printf("%s", _body.toStdString().c_str());
@@ -313,7 +327,9 @@ int Broadcaster::_broadcastInternet()
     request.setRawHeader("connectivityMethod", "network");
     request.setRawHeader("x-api-key", API_KEY);
 
-    QNetworkReply* reply = nam.post(request, _body);
+    QNetworkAccessManager* nam;
+    nam = new QNetworkAccessManager();
+    QNetworkReply* reply = nam->post(request, _body);
     QEventLoop loop;
     connect(reply, SIGNAL(finished()), &loop, SLOT(quit()));
     loop.exec();
@@ -335,6 +351,7 @@ int Broadcaster::_checkConnectivity()
 
     //Wifi
     QNetworkRequest request(QUrl("http://www.google.com/"));
+    QNetworkAccessManager nam;
     QNetworkReply* reply = nam.head(request); //HTTP HEAD operation
     QEventLoop loop;
     connect(reply, SIGNAL(finished()), &loop, SLOT(quit()));
@@ -370,3 +387,8 @@ Connectivity Broadcaster::getConnectivity()
 
     return Connectivity::None;
 }
+
+
+
+
+

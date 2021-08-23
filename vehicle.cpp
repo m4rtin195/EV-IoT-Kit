@@ -2,6 +2,8 @@
 
 Vehicle::Vehicle()
 {
+    readwriteLock = new QReadWriteLock(QReadWriteLock::Recursive);
+
     state = Idle;
     charge = 0.0;         //percent
     target_charge = 0.0;  //percent

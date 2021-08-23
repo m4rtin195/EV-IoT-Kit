@@ -47,11 +47,24 @@ void Logger::broadcastCompleted(int status)
     }
 }
 
-void Logger::logRequest(bool brief, bool priority)
+bool Logger::logRequestSlot(bool brief, bool priority)
 {
     static int i = 0;
-    if(SIMULATOR_LOGGING_ENABLED == false) return;
-    if(priority != true && (++i % SIMULATOR_LOGGING_INTERVAL)) return;
+    if(SIMULATOR_LOGGING_ENABLED == false)
+        return false;
+
+    if(priority == true || (++i % SIMULATOR_LOGGING_INTERVAL) == 0)
+    {
+        this->log(brief);
+        return true;
+    }
+    else
+        return false;
+}
+
+void Logger::log(bool brief)
+{
+    v->readwriteLock->lockForRead();
 
     if(brief)
     {
@@ -81,5 +94,7 @@ void Logger::logRequest(bool brief, bool priority)
         printf("  Vehicle location: %s \n", "0.0000 0.0000");
         printf("\n");
     }
+
+    v->readwriteLock->unlock();
 }
 

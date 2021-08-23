@@ -36,7 +36,8 @@ private:
 
 public slots:
     void broadcastCompleted(int status);
-    void logRequest(bool brief, bool priority = false);
+    bool logRequestSlot(bool brief, bool priority = false);
+    void log(bool brief);
 
 };
 

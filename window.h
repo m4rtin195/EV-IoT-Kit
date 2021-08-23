@@ -35,6 +35,15 @@ private:
     Broadcaster* broadcaster;
     Simulator* simulator;
 
+    QThread broadcasterThread;
+    QThread simulatorThread;
+
+    bool updatingLock = false;
+
+signals:
+    void broadcasterEnablingRequest(bool);
+    void simulatorEnablingRequest(bool);
+
 public slots:
     void updateUI();
 
@@ -47,6 +56,8 @@ private slots:
     void on_button_ampPlus_clicked();
     void on_button_exit_clicked();
     void on_scrollBar_sliderMoved(int position);
+    void on_scrollBar_sliderPressed();
+    void on_scrollBar_sliderReleased();
 };
 
 #endif // WINDOW_H

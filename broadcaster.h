@@ -33,7 +33,7 @@ enum Connectivity {None=0, Sigfox=1, Wifi=2};
 
 using namespace half_float;
 
-class Broadcaster : public QThread
+class Broadcaster : public QObject
 {
     Q_OBJECT
 
@@ -41,18 +41,16 @@ public:
     explicit Broadcaster(Vehicle* vehicle);
     ~Broadcaster();
 
-    void enabled(bool b);
+    void enable(bool b);
+    bool isEnabled();
     Connectivity getConnectivity();
 
 private:
     QTimer *tickTimer;
     serialib serial;
-    QNetworkAccessManager nam;
     Vehicle* v;
     clock_t lastBroadcastTimestamp;
     int availConnectivity;
-
-    void run() override;
 
     int _checkValues();
     int _buildSigfoxFrame(uint8_t* frame);

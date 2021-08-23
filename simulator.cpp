@@ -1,44 +1,55 @@
 #include "simulator.h"
 
-/** Simulator bezi vo vlastnom vlakne, co sice nieje nutne lebo qt je event-driven, ma event-loop.
-    toto vlakno ma ale teda samostatnu event-loop, do ktorej vklada eventy QTimer. event = zavolanie metody simulate() */
+/** Event-loop Simulatora do ktorej vklada eventy QTimer (zavolanie metody simulate()) bezi vo vlastnom vlakne */
 
-Simulator::Simulator(Vehicle* vehicle) : QThread()
+static float a;    // exponential eq parameter
+static float x;    // "time" (position) in charging process
+static float y;    // charge in %
+
+Simulator::Simulator(Vehicle* vehicle) : QObject()
 {
     v = vehicle;
 
     tickTimer = new QTimer(this);
     connect(tickTimer, SIGNAL(timeout()), this, SLOT(_simulate()));
+    connect(this, SIGNAL(_simulateRequest()), this, SLOT(_simulate()), Qt::BlockingQueuedConnection);
 
     SStimestamp.start();
-    this->QThread::start();
 }
 
 Simulator::~Simulator()
 {
-    this->quit();
-    this->wait();
+    tickTimer->stop();
 }
 
-void Simulator::enabled(bool b)
-{
+// starts or stops timer which invokes _simulate()
+void Simulator::enable(bool b)
+{cout << "simulator switch" << endl;
     if(b)
         tickTimer->start(SIMULATION_INTERVAL);
     else
         tickTimer->stop();
 }
 
+bool Simulator::isEnabled()
+{
+    return tickTimer->isActive();
+}
+
+
 void Simulator::setInitialValues()
 {
+    v->readwriteLock->lockForWrite();
+
     v->state = Vehicle::Off;
     v->charge = 40.0;
-    v->target_charge = 65.0;
-    v->voltage = 600.0;
-    v->current = 0.0;
+    v->target_charge = 0;
+    v->voltage = 580.0;
+    v->current = 0;
     v->max_current = 300.0;
     v->elapsed_time = 0;
     v->remaining_time = 0;
-    v->range = 325;
+    v->range = 320;
     v->elec_consumption = 21.0;
     v->indoor_temp = 20.5;
 
@@ -46,20 +57,17 @@ void Simulator::setInitialValues()
     v->desired_temp = v->indoor_temp;
     v->location = "placeholder location";
 
+    v->readwriteLock->unlock();
     //emit logRequest(extended);
     cout << "[i] Initial values set." << endl;
 }
 
-/// override
-void Simulator::run()
-{
-    cout << "[i] Simulator thread started." << endl;
-    this->exec(); //run the event loop
-}
 
 /// tick
+/// simulate new values
 void Simulator::_simulate()
 {
+    cout << "simulating in thr" << QThread::currentThreadId() << endl;
     switch(v->state)
     {
         case Vehicle::Off:
@@ -72,49 +80,62 @@ void Simulator::_simulate()
             if((v->current) > (v->max_current))
             {
                 cout << "[!] Current bigger than user-set maximal current, limiting." << endl;
+                v->readwriteLock->lockForWrite();
                 v->current = v->max_current;
+                v->readwriteLock->unlock();
                 emit redrawRequest();
             }
             if((v->charge) < (v->target_charge)) //standard condition, charging
             {
-                v->charge = _calcCharge();
+                _calcCharge();
+                _calcOthers();
+                emit logRequest(briefly);
             }
-            else
+            else //charge > target_charge
             {
                 emit logRequest(briefly, priority_now);
                 cout << endl << "[>] Charge completed (in " << Logger::minsToTime(v->elapsed_time) << ").";
                 setState(Vehicle::Idle);
             }
+
             break;
         }
 
         case Vehicle::Idle:
         {
-            //break;
+            //break; //TODO
             return;
         }
 
         case Vehicle::Driving:
         {
+            _calcOthers(); //kvoli elapsed_time
+            emit logRequest(briefly);
             break;
         }
     }
 
-    _recalcOthers();
-
-    emit redrawRequest();
-    emit logRequest(briefly);
+    emit redrawRequest(); cout<<"simulation complete" << endl;
 }
+
+//public, call internal one trouch signal to separate trheads (calls from ui)
+//separate method instead of making _setState as a public slot is becuase it would be more
+//complicated to set default parameters in slot
+/*void Simulator::setState(Vehicle::State newState, float _current, float _target_charge)
+{
+    //emit
+    _setState(newState, _current, _target_charge); cout<<"emitted" << endl;
+}*/ //TODO DELETE
 
 //return: 0=changed, 1=same
 int Simulator::setState(Vehicle::State newState, float _current, float _target_charge)
 {
     if(newState == v->state) return 1;
-    //if(((v->state != Vehicle::Charging) && (newState == Vehicle::Charging)) || ((v->state == Vehicle::Charging) && (newState != Vehicle::Charging))) //change to or from charging wtf naco
+    v->readwriteLock->lockForWrite();
 
     SStimestamp.restart();
 
-    if(/*(v->state == Vehicle::Charging) &&*/ newState != Vehicle::Charging)
+    if(newState != Vehicle::Charging)
         v->remaining_time = 0;
 
     if((newState == Vehicle::Charging) || (newState == Vehicle::Driving))
@@ -134,12 +155,11 @@ int Simulator::setState(Vehicle::State newState, float _current, float _target_c
         v->target_charge = _target_charge;
 
     v->state = newState;
-    this->_simulate();
-    _recalcOthers();
-    emit redrawRequest();
+    //v->readwriteLock->unlock();
 
 
     // vypis //
+    //v->readwriteLock->lockForRead(); //keep locked for write, to prevent switchng modes if recursed (causes deadlock)
     cout << endl << "[>] State: ";
     switch(v->state)
     {
@@ -162,15 +182,15 @@ int Simulator::setState(Vehicle::State newState, float _current, float _target_c
                     .arg(QString::number(_current, 'f', 1))
                     .toStdString();
             break;
-
-        default:
-            cout << "wtf??";
     }
 
     if(v->state == Vehicle::Driving || v->state == Vehicle::Off) cout << endl << "[!] Not implemented.";
 
     cout << endl << endl;
+    v->readwriteLock->unlock();
 
+    emit _simulateRequest();
+    emit redrawRequest();
     emit logRequest(briefly, priority_now);
     emit broadcastRequest(priority_now);
     return 0;
@@ -178,20 +198,26 @@ int Simulator::setState(Vehicle::State newState, float _current, float _target_c
 
 void Simulator::setCharge(float level)
 {
+    v->readwriteLock->tryLockForWrite(100);
     v->charge = level;
-    this->_simulate();
+    v->readwriteLock->unlock();
+cout << "imhere" << endl;
+    emit _simulateRequest(); //calls redrawRequest inside
 }
 
 void Simulator::setCurrent(float current)
 {
-    //WARNING mutexy!!!
+    v->readwriteLock->lockForWrite();
     v->current = current;
+    v->readwriteLock->unlock();
+
     emit redrawRequest();
 }
 
 float Simulator::_calcCharge(void)
 {
     //shadows
+    v->readwriteLock->lockForWrite(); //write, to prevent swtiching modes if already locked
     float charge = v->charge;
     float target_charge = v->target_charge;
     float current = v->current;
@@ -203,9 +229,10 @@ float Simulator::_calcCharge(void)
 
     //if(charge >= 100) return 100; //treba??
 
-    float a;    // exponential eq parameter
-    float x;    // "time" (position) in charging process
-    float y;    // charge in %
+    //declared as global so _calcOthers can access it to calc remaining time
+    ///float a;    // exponential eq parameter
+    ///float x;    // "time" (position) in charging process
+    ///float y;    // charge in %
 
     //solve (a) parameter for actual charging current
     a = -(currentEq_param_a * current + currentEq_param_c) / 1000; // y=ax+c
@@ -216,23 +243,31 @@ float Simulator::_calcCharge(void)
     x = (1/a) * log(-((charge-100) / 100));  //inverse func of next line  // x=(1/a)*log(-((y-100)/100))
 
     // calc new charge level for time+1 (second/minute)
-    y = 100.0 * (1 - exp(a * (x + ((float)1/60*TIME_SPEED))));   //charging exp curve  // y=100*(1-exp(a*x))
+    y = 100.0 * (1 - exp(a * (x + (1.0/60*TIME_SPEED))));   //charging exp curve  // y=100*(1-exp(a*x))
 
     if(y>99.5) y=100;  //end of exp func is very long so consider charging as complete
     if(y>target_charge) y=target_charge;
 
-    float _target_charge = (target_charge>99.5) ? 99.5 : target_charge;
-    float x_full = (1/a) * log(-((_target_charge-100-0.01) / 100));  //x at target_charge
-    v->remaining_time = (x_full - x);
-
     //printf("##: x= %f  xt = %f  y= %f  a=%f \n", x, x_full, y, a);
+
+    v->charge = y;
+    v->readwriteLock->unlock();
     return y;
 }
 
-void Simulator::_recalcOthers() //not related only to charging
+void Simulator::_calcOthers() //not related only to charging
 {
-    v->voltage = v->min_voltage + ((v->max_voltage - v->min_voltage) * v->charge/100.0);
+    v->readwriteLock->lockForWrite();
+
+    float _target_charge = (v->target_charge>99.5) ? 99.5 : v->target_charge; //cut end of exp func
+    float x_full = (1/a) * log(-((_target_charge-100-0.01) / 100));  //x at target_charge
+    v->remaining_time = (x_full - x);
+
     //v->elapsed_time = (float)(clock()-chargingSStimestamp) / CLOCKS_PER_SEC /60 * TIME_SPEED;
-    v->elapsed_time = (float)(SStimestamp.elapsed())/1000/60 * TIME_SPEED; //result in minutes
+    v->elapsed_time = static_cast<float>(SStimestamp.elapsed())/1000/60 * TIME_SPEED; //result in minutes
+
+    v->voltage = v->min_voltage + ((v->max_voltage - v->min_voltage) * v->charge/100.0);
     v->range = (v->battery_capacity/100)*(v->charge/100.0); //* vehicle_effectivity;
+
+    v->readwriteLock->unlock();
 }

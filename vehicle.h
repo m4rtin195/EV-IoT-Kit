@@ -2,6 +2,8 @@
 #define VEHICLE_H
 
 #include <iostream>
+#include <QReadWriteLock>
+#include <QMetaType>
 
 using namespace std;
 
@@ -20,7 +22,9 @@ public:
     const string vehicleId = "386625";
     const float min_voltage = 500.0; //bolo 600
     const float max_voltage = 700.0;
-    const int battery_capacity = 50000;
+    const int battery_capacity = 80000;
+
+    QReadWriteLock* readwriteLock;
 
     State state;
     float charge, target_charge, voltage; //in percent, volts
