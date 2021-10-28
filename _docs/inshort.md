@@ -1,7 +1,7 @@
 ---
 title: "In short"
 permalink: /docs/inshort/
-redirect_from: /docs/index.html
+redirect_from: /docs
 ---
 
 EV-IoT-Kit is a 
