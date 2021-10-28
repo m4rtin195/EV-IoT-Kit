@@ -1,1 +1,58 @@
-theme: jekyll-theme-tactile
+# Site settings
+title: EV-IoT-Kit
+email: martin.timko195@gmail.com
+description: >
+  Personal project from my diploma thesis
+lang: en-US
+
+url: https://m4rtin195.github.io/EV-IoT-Kit/ # the base hostname & protocol for your site
+git_address: https://github.com/m4rtin195/EV-IoT-Kit
+git_edit_address: about:blank
+
+# theme options from https://bootswatch.com/3/
+# comment out this to use default Bootstrap
+bootwatch: readable # paper # cerulean cosmo custom cyborg darkly flatly journal lumen readable sandstone simplex slate solar spacelab superhero united yeti
+
+# Build settings
+markdown: kramdown
+highlighter: rouge
+timezone: Europe/Berlin
+
+# Plugins
+plugins:
+  - jekyll-feed
+  - jekyll-redirect-from
+  - jekyll-seo-tag
+  - jekyll-sitemap
+
+exclude:
+  - Gemfile
+  - Gemfile.lock
+  - .idea/
+  - .gitignore
+  - README.md
+
+defaults:
+- scope:
+    path: _posts
+    type: posts
+  values:
+    layout: post
+    sectionid: blog
+
+- scope:
+    path: _docs
+    type: docs
+  values:
+    layout: docs
+    sectionid: docs
+    seo:
+      type: "WebPage"
+
+collections:
+  docs:
+    permalink: /:collection/:path/
+    output: true
+# posts:
+#   permalink: /blog/:year/:month/:day/:title/
+#   output: true
