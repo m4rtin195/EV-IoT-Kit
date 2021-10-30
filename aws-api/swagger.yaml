@@ -1,0 +1,209 @@
+swagger: '2.0'
+info:
+  title: eCar-IoT-Kit_API
+  version: beta
+  description: |
+    This is an API for eCar-IoT-Kit project, part of my Diploma thesis.
+    Server side is running on Amazon Web Services.  
+    
+    More about project at
+    [github.com/m4rtin195/eCarKit](https://github.com/m4rtin195/eCarKit)
+    
+    Martin Timko, 2021
+  contact:
+    email: martin.timko195@gmail.com
+
+host: fe6ea208.eu-gb.apigw.appdomain.cloud
+basePath: /ecar-iot-kit-api/v1
+schemes:
+  - https
+consumes:
+  - application/json
+produces:
+  - application/json
+
+tags:
+  - name: LoRaWAN
+    description: not implemented.
+  - name: Sigfox
+    description: Endpoints for Sigfox Backend.
+    externalDocs:
+      description: Location
+      url: https://backend.sigfox.com
+  - name: Android
+    description: Endpoints for Android client.
+
+
+paths:
+  /sigfox/uplink:
+    post:
+      tags:
+        - Sigfox
+      operationId: postSigfoxUplink
+      description: Obtain new data from Sigfox Backend.
+      parameters:
+        - name: data
+          in: body
+          schema:
+            $ref: '#/definitions/SigfoxMessage'
+      responses:
+        '200':
+          description: A successful invocation response
+        '400':
+          description: Parsing error
+
+  /sigfox/downlink:
+    post:
+      tags:
+        - Sigfox
+      operationId: postSigfoxDownlink
+      responses:
+        '200':
+          description: OK
+      deprecated: true
+
+  /android/last:
+    get:
+      tags:
+        - Android
+      operationId: getAndroidLast
+      description: Get last available status for requested vehicle.
+      parameters:
+        - name: vehicleId
+          in: query
+          type: string
+      responses:
+        '200':
+          description: A successful invocation response
+          schema:
+            $ref: '#/definitions/VehicleStatus'
+        '400':
+          description: Status for requested vehicleId was not found.
+        '403':
+          description: Request for foreign vehicle.
+
+  /android/fcm-subscribe:
+    post:
+      tags:
+        - Android
+      operationId: postAndroidFcm-subscribe
+      description: Subscribe client to FCM messages.
+      responses:
+        '200':
+          description: OK
+      parameters:
+        - name: request
+          in: body
+          schema:
+            type: object
+            properties:
+              vehicleId:
+                type: string
+              fcmToken:
+                type: string
+
+  /android/fcm-unsubscribe:
+    post:
+      tags:
+        - Android
+      operationId: postAndroidFcm-unsubscribe
+      responses:
+        '200':
+          description: OK
+      deprecated: true
+
+  /online:
+    head:
+      operationId: headOnline
+      description: Check if API is online.
+      responses:
+        '200':
+          description: Yes, online
+
+  /test:
+    post:
+      operationId: postTest
+      description: Used for testing
+      responses:
+        '200':
+          description: ...
+
+
+definitions:
+  SigfoxMessage:
+    properties:
+      timestamp:
+        type: string
+      vehicleId:
+        type: string
+      seqNumber:
+        type: string
+      state:
+        type: integer
+      current_charge:
+        type: integer
+      target_charge:
+        type: integer
+      current:
+        type: integer
+      elapsed_time:
+        type: integer
+      remain_time:
+        type: integer
+      range:
+        type: integer
+      elec_consumption:
+        type: number
+      indoor_temp:
+        type: number
+
+  VehicleStatus:
+    properties:
+      id:
+        type: string
+      vehicleId:
+        type: string
+      timestamp:
+        type: integer
+      connectivity:
+        type: integer
+        enum: [-1,0,1,2]
+      state:
+        type: integer
+        enum: [0,1,2,3,4,5,6,7]
+      current_charge:
+        type: integer
+      target_charge:
+        type: integer
+      current:
+        type: integer
+      elapsed_time:
+        type: integer
+      remain_time:
+        type: integer
+      range:
+        type: integer
+      outdoor_temperature:
+        type: number
+      indoor_temperature:
+        type: number
+      location:
+        type: string
+      max_current:
+        type: integer
+      desired_temperature:
+        type: number
+
+#securityDefinitions:
+#  client_id:
+#    type: apiKey
+#    in: header
+#    name: X-IBM-Client-Id
+#  client_secret:
+#    type: apiKey
+#    in: header
+#    name: X-IBM-Client-Secret
+#
+#security:
+#  - client_id: []
+#    client_secret: []
