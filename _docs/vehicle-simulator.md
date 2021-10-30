@@ -18,10 +18,10 @@ GUI consits of few simple elements and is designed for small touch display - use
 
 The application is executed as a `systemd` service upon system boot, and lunched in fullscreen mode.
 
-## Simulation
+### Simulation
 The simulation process is made by mathematical logarithmic equations which imitates the process of real acumulator charging - from fast increase in lower charge levels to very slow increase close to full charge and depends on the set charging current. As the reference, the charging curve of Tesla Model S with 85kWh battery was used, on conventional “slow” charger with 50A current and on Tesla Supercharger stations, with 300A current. Equation parameters for currents between are calculated in a linear scale.
 
-## Broadcasting
+### Broadcasting
 The “broadcasting” to cloud backend is possible by ways 
 - through `Wi-Fi` mode - standard HTTP calls to backend API, over Raspberry’s network connectivity.
 - through `Sigfox` technology ~(link na article)~ - modern IoT, LPWAN 
@@ -53,5 +53,5 @@ It’s needed to keep in mind, that Sigfox has a limitation in number of message
 In case of “broadcasting” via Wi-Fi, the application can evaluate the success of process; in case of Sigfox broadcasting, there is no acknowledgment from network possible. The availability of Wi-Fi, Sigfox, and possibly also some other connectivity is evaluated before each transmission, so the simulator/TCU can always make the decession for using the best suitable channel for each transmission. 
 Each Sigfox and W-Fi broadcasting “modules” are made as individual classes, so it’s easy to replace them/add other communication technology, if it would be suitable. 
 
-See ~LPWAN technologies~ post for more.
+See [Communication Technologies](/docs/communication-technologies/) article for more.
 

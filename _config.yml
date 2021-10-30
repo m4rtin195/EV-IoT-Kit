@@ -1,13 +1,17 @@
 # Site settings
 title: EV-IoT-Kit
 email: martin.timko195@gmail.com
-description: >
-  Personal project from my diploma thesis
+description: "" #>
+#   Personal project from my diploma thesis
 lang: en-US
 
 url: https://m4rtin195.github.io/EV-IoT-Kit/ # the base hostname & protocol for your site
-git_address: https://github.com/m4rtin195/EV-IoT-Kit
+git_address: https://github.com/m4rtin195/EV-IoT-Kit/
 git_edit_address: about:blank
+
+# Configure the remote_theme plugin with the gh-pages branch
+# or the specific tag
+remote_theme: aksakalli/jekyll-doc-theme@gh-pages   
 
 # theme options from https://bootswatch.com/3/
 # comment out this to use default Bootstrap

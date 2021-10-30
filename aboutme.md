@@ -5,13 +5,16 @@ permalink: /aboutme/
 sectionid: aboutme
 ---
 
-I am a fresh graduate in IT field, with love to IoT, SmartHome and Multimedia technologies. Worked in other amazing field during the university, so maybe not so experienced as pure IT students, but with strong enthusiasm which will help me to catch up with it.
+<blockquote>
+  <h1>About me</h1><br>
 
-I studied at University of Zilina, in the beautiful, same-called city on the north of Slovakia.  
+  <p>I am a fresh graduate in IT field, with love to IoT, SmartHome and Multimedia technologies. Worked in other amazing field during the university, so maybe not so experienced as pure IT students, but with strong enthusiasm which will help me to catch up with it.</p>
 
-I’m really excited about all the new technologies and the possibilities they give us to explore in this fast changing world. I want to work on projects which will help to make cities more efficient, which will truely allow people to have more time, while experiencing the excitement from tech world.
+  <p>I studied at University of Zilina, in the beautiful, same-called city on the north of Slovakia.</p>
+  
+  <p>I’m really excited about all the new technologies and the possibilities they give us to explore in this fast changing world. I want to work on projects which will help to make cities more efficient, which will truely allow people to have more time, while experiencing the excitement from tech world.</p>
 
-I hate to place a “Smart” stickers on everything just because it has a display. I believe that smart things should truely allow people to feel more confortable, and save their time, not to require them to set something up for 20 minutes only to get a notification that washer machine finished its work. Wanna know what else would I do? Write me an email!
+  <p>I hate to place a “Smart” stickers on everything just because it has a display. I believe that smart things should truely allow people to feel more confortable, and save their time, not to require them to set something up for 20 minutes only to get a notification that washer machine finished its work. Wanna know what else would I do? Write me an email!</p>
 
 
 <div style="clear:both;">
@@ -23,3 +26,4 @@ I hate to place a “Smart” stickers on everything just because it has a displ
 	      <i class="fa fa-envelope fa-lg"></i> Contact me </a>
 	  </p>
 </div>
+</blockquote>
