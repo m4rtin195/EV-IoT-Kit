@@ -2,6 +2,7 @@ _site
 .sass-cache
 .jekyll-cache
 *.gem
+*.lock
 .bundle
 vendor/bundle
 *.sublime-project

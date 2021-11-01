@@ -66,13 +66,11 @@ The project consists of 3 independent parts:
   </div>
 </div>
 
+<img src="/assets/img/docs/53CF2A89-32B0-4ECF-BF3E-13C49CFA2C02.png" alt="project architecture" width="70%" style="display: block; margin: auto;">
+
 <br>
 
-![](In%20short/53CF2A89-32B0-4ECF-BF3E-13C49CFA2C02.png)
-
-used technologies image
-
-What about reading the data from the vehicle’s electronic system itself? That was not part of my thesis. We expect an official integration into the vehicle’s systems, or using some independent measuring of necessary values. 
+What about reading the data from the vehicle’s electronic system itself? That was not part of my thesis. We expect a connection to vehicle's CAN bus or <abbr title="On-Board Diagnostics">OBD</abbr> port, but an official integration may be needed to obtain some information. Alternatively, some independent measuring of necessary values may be used. 
 
 <br>
 
