@@ -17,7 +17,7 @@ The system, which sends the vehicle state to the cloud, where the data are store
 After small changes in the android app, the project can be used also as a universal platform, not only for EVs, but also for any other (e.g. shared) vehicles, as electric scooters, motocycles, e-bikes, or also non-smart devices as classic-bikes, with a additionally installable TCU. 
 
 ### ⚙️ How it works.
-The project consists of 3 independent parts:
+The project consists of 3 separate parts:
 
 <br>
 <ul class="nav nav-tabs">
@@ -38,7 +38,7 @@ The project consists of 3 independent parts:
             <div style="float:left; width:50%">toto je text</div>
             <div style="float:left; width:50%">toto je image1</div>
           </div>
-          <p>For more, check <a href="/docs/vehicle-simulator/">Vehicle Simulator article</a>, or <a href="/docs/sigfox/">this one about Sigfox</a>.</p>
+          <p>For more, check <a href="{{ /docs/vehicle-simulator/ | relative_url }}">Vehicle Simulator article</a>, or <a href="{{ /docs/sigfox/ | relative_url }}">this one about Sigfox</a>.</p>
       </div>
     </div>
   </div>
@@ -49,7 +49,7 @@ The project consists of 3 independent parts:
             <h4>Cloud backend</h4>
             <p>Is hosted in <code>AWS (Amazon Web Services)</code>. We use a few components - an <b>API Gateway</b> which provides an REST API, <b>DynamoDB</b> - NoSQL database, to store actual and historical statuses of all vehicles, and <b>Lambda</b> functions which provides the runtime for service logic.</p>
             <p>Besides that, we use <code>Sigfox Cloud</code> as the source of messages from the Sigfox network, and <code>Google Firebase</code> for <b>push-messaging</b> and as support for some other app features. Ofc we use JSON as a communication format between APIs.</p>
-            <p>A separate article - <a href="/docs/cloud-backend/">Cloud Backend</a>.</p>
+            <p>A separate article - <a href="{{ /docs/cloud-backend/ | relative_url }}">Cloud Backend</a>.</p>
         </div>
     </div>  
   </div>
@@ -60,13 +60,15 @@ The project consists of 3 independent parts:
           <h4>Android app</h4>
           <p>Is written natively, in <code>Java</code>. We used Google’s recommended approach - the app is written as a <b>single activity</b>, with the <b>fragments</b> switching within it.</p>
           <p>After initial login through email or Google account, user can see the main dashboard with most recent information about his vehicle, browse data history with interactive graph, or see vehicle’s location on built-in <code>Google Map</code> fragment. Multiple vehicles associated with one account are also supported. Internally, <code>SQLite</code> is used to store cached vehicles statuses, API requests to the cloud backend are made using <code>Retrofit</code> HTTP client. For user login and storing vehicles information, <code>Firebase Authentication</code> and <code>Firestore</code> are used.</p>
-          <p>All other details are in <a href="/docs/android-app/">Android App article</a>.</p>
+          <p>All other details are in <a href="{{/docs/android-app/ | relative_url}}">Android App article</a>.</p>
         </div>
     </div>
   </div>
 </div>
 
-<img src="/assets/img/docs/53CF2A89-32B0-4ECF-BF3E-13C49CFA2C02.png" alt="project architecture" width="70%" style="display: block; margin: auto;">
+<img src="{{ "/assets/img/docs/53CF2A89-32B0-4ECF-BF3E-13C49CFA2C02.png" | relative_url }}" alt="project architecture" width="70%">
+
+<!-- <img src="/assets/img/docs/53CF2A89-32B0-4ECF-BF3E-13C49CFA2C02.png" alt="project architecture" width="70%" style="display:block; margin:auto;"> -->
 
 <br>
 
@@ -76,9 +78,9 @@ What about reading the data from the vehicle’s electronic system itself? That 
 
 What more is in the theory of my thesis? Introduction to what <b>IoT</b>, <b>SmartCity</b>, <b>Industry 4.0</b>, and <b>Cloud technologies</b> means; Comparation of many wireless telecommunication technologies useful for IoT, detailed look at <b>Sigfox</b>, DOKONCIT 
 
-* ▶️ <a href="/assets/files/presentation.pdf" target="_blank">Download the presentation (.pdf)</a>  
-* ▶️ <a href="/assets/files/svos.pdf" target="_blank">Download the ŠVOS project (.pdf)</a>  
-* ▶️ <a href="/assets/files/DP-Timko-Martin-final.pdf" target="_blank">Download diploma thesis theory (.pdf)</a>, or from <a href="https://opac.crzp.sk/?fn=detailBiblioForm&sid=C5B0443D08DFEDB23D0F0949A386" target="_blank">official register of final theses (crzp.sk)</a>  
+* ▶️ <a href="{{/assets/files/presentation.pdf | relative_url}}" target="_blank">Download the presentation (.pdf)</a>  
+* ▶️ <a href="{{/assets/files/svos.pdf | relative_url}}" target="_blank">Download the ŠVOS project (.pdf)</a>  
+* ▶️ <a href="{{/assets/files/DP-Timko-Martin-final.pdf | relative_url}}" target="_blank">Download diploma thesis theory (.pdf)</a>, or from <a href="https://opac.crzp.sk/?fn=detailBiblioForm&sid=C5B0443D08DFEDB23D0F0949A386" target="_blank">official register of final theses (crzp.sk)</a>  
 Only in <attr title="Slovak">🇸🇰</attr> Slovak language, 106 pages.
 
 At last - this page, is wrote in `Markdown`, generated by `Jekyll` to the static website and hosted in `GitHub Pages`.

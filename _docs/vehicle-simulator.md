@@ -25,7 +25,7 @@ The simulation process is made by mathematical logarithmic equations which imita
 ### Broadcasting
 The “broadcasting” to the cloud backend is possible by 2 ways: 
 - through <b><u>WLAN</u></b> - standard HTTP calls to backend API, over Raspberry’s network connectivity.
-- through <b><u><a href="/docs/sigfox">Sigfox</a></u></b> technology - modern IoT, LPWAN 
+- through <b><u><a href="{{"/docs/sigfox"|relative_link}}">Sigfox</a></u></b> technology - modern IoT, LPWAN 
 network, of which network is available on wide areas worldwide.
 
 The idea behind this is, that WLAN connectivity can be used when the vehicle is located at the brand’s own or partners charging stations, where the vehicle is able to automatically connect to a <u>secure</u>, local Wi-Fi network (be aware that *Wi-Fi* doesn't have to be only 802.11b/g/n! ([see wikipedia](https://en.wikipedia.org/wiki/IEEE_802.11))). The other scenario is when the owner is charging his vehicle at home.  
@@ -125,5 +125,5 @@ It’s needed to keep in mind, that Sigfox has a limitation in number of message
 In case of “broadcasting” via Wi-Fi, the application can evaluate the success of process; in case of Sigfox broadcasting, there is no acknowledgment from network possible. The availability of Wi-Fi, Sigfox, and possibly also some other connectivity is evaluated before each transmission, so the simulator/TCU can always make the decession for using the best suitable channel for each transmission. 
 Each Sigfox and W-Fi broadcasting “modules” are made as individual classes, so it’s easy to replace them/add other communication technology, if it would be suitable. 
 
-See [Communication Technologies](/docs/communication-technologies/) article for more.
+See [Communication Technologies]({{"/docs/communication-technologies/"|relative_link}}) article for more.
 
