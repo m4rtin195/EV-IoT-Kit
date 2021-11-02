@@ -8,7 +8,8 @@ permalink: allposts.html
 
 <div class="container">
     <div class="inner-content">
-        <h1>All Posts</h1> {% for page in site.posts %}
+        <h1>All Posts</h1>
+        {% for page in site.docs %}
         <p>
             <strong><a href="{{ page.url | relative_url }}">{{ page.title }}</a></strong>
             <span>on {{ page.date | date: "%B %e, %Y" }} {% if page.author %} by {{ page.author }}{% endif %}</span>
