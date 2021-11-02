@@ -24,8 +24,7 @@ The last mentioned, LPWAN technologies, were the main area of interest connectiv
 
 In short, we know 3 approaches how to reach mentioned key features of LPWAN, forming 3 categories of these technologies:
 
-<br>
-<ul class="nav nav-tabs">
+<ul class="nav nav-tabs" style="margin-top:20px;">
   <li class="active"><a href="#unb" data-toggle="tab">Ultra Narrowband</a></li>
   <li><a href="#ss" data-toggle="tab">Spread Spectrum</a></li>
   <li><a href="#cellular" data-toggle="tab">Cellular-based</a></li>
@@ -65,11 +64,10 @@ In short, we know 3 approaches how to reach mentioned key features of LPWAN, for
     </div>
   </div>
 </div>
-
 <br>
 
 As we can see, all of these approaches have some pros and cons. Therefore, it is very important to invest a sufficient amount of time to consider what is needed for a specific project - which properties are necessary and what technology can bring us the best “price/performance” ratio.
 
-Finally, we decided to use **Sigfox** as the main connectivity method between our simulator and the cloud backend. In addition, later we also implemented the way to utilize a standard internet connection of simulator if it is available (more in [Simulator article](/docs/vehicle-simulator/)), and therefore a WLAN-type connectivity, from the vehicles point of view.
+Finally, we decided to use **Sigfox** as the main connectivity method between our simulator and the cloud backend. In addition, later we also implemented the way to utilize a standard internet connection of the simulator, if it is available (more in [Simulator article]({{ "/docs/vehicle-simulator/" | relative_url }})), and therefore a WLAN-type connectivity, from vehicles point of view.
 
-See more about Sigfox [in a separate post](/docs/sigfox/).
+See more about Sigfox [in a separate post]({{ "/docs/sigfox/" | relative_url }}).

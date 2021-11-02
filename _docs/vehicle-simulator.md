@@ -3,15 +3,21 @@ title:  "Vehicle Simulator"
 permalink: /docs/vehicle-simulator/
 ---
 
-The first component of the system is the simulator of electric-vehicle, respectively, of its **telematics unit** (<abbr title="Telematics Control Unit">TCU</abbr>), which is built on `Raspberry Pi 4B`. The microcomputer is housed in a box with a small touchscreen, inside which is also the Sigfox communication module connected to the `UART` interface, including a small antenna, and `BMP280` temperature sensor, connected to the `I2C` bus.
-
-[fotka simulatora]
-
-The `Raspberry Pi OS` runs an application written in `C++` and the `Qt framework`, using which the GUI for simulator control is created.  Internally, the application consists from 4 components:
-- **GUI**
-- **Simulator**
-- **Braodacaster**
-- **Logger**
+<div style="display: flex; flex-flow: row wrap;">
+	<div style="flex-basis:55%;">
+		<p>The first component of the system is the simulator of electric-vehicle, respectively, of its <b>telematics unit</b> (<abbr title="Telematics Control Unit">TCU</abbr>), which is built on <code>Raspberry Pi 4B</code>. The microcomputer is housed in a box with a small touchscreen, inside which is also the Sigfox communication module connected to the <code>UART</code> interface, including a small antenna, and <code>BMP280</code> temperature sensor, connected to the <code>I2C</code> bus.</p>
+		<p>The <code>Raspberry Pi OS</code> runs an application written in <code>C++</code> and the <code>Qt framework</code>, using which the GUI for simulator control is created.  Internally, the application consists from 4 components:
+		<ul>
+			<li><b>GUI</b></li>
+			<li><b>Simulator</b></li>
+			<li><b>Braodacaster</b></li>
+			<li><b>Logger</b></li>
+		</ul></p>
+	</div>
+	<div style="flex-basis:45%;">
+    	<img src="{{ "/assets/img/docs/simulator.png" | relative_url }}" alt="simulator device" style="margin-top:20px; margin-left:15px;">
+  </div>
+</div>
 
 *Simulator* and *Broadcaster* components both run in their own `QThread`s, so they can be enabled/disabled independently from each other, for example for testing purposes, and do not interfere with each other. The exchange of data is realized through a mutual *Vehicle* object, to which all the components have a reference. For all read/write operations to *Vehicle* attributes, Qt’s `QReadWriteLock` mechanism is used, to avoid race conditions. The components run independently from each other, but if there is a condition when some action (redraw UI, broadcast, write a log immediately) is needed, Qt’s `Signals and Slots` mechanism is used to notify each other of these events (vehicle state was manually changed, charging has completed, etc.). 
 
@@ -25,7 +31,7 @@ The simulation process is made by mathematical logarithmic equations which imita
 ### Broadcasting
 The “broadcasting” to the cloud backend is possible by 2 ways: 
 - through <b><u>WLAN</u></b> - standard HTTP calls to backend API, over Raspberry’s network connectivity.
-- through <b><u><a href="{{"/docs/sigfox"|relative_link}}">Sigfox</a></u></b> technology - modern IoT, LPWAN 
+- through <b><u><a href="{{ "/docs/sigfox/" | relative_link }}">Sigfox</a></u></b> technology - modern IoT, LPWAN 
 network, of which network is available on wide areas worldwide.
 
 The idea behind this is, that WLAN connectivity can be used when the vehicle is located at the brand’s own or partners charging stations, where the vehicle is able to automatically connect to a <u>secure</u>, local Wi-Fi network (be aware that *Wi-Fi* doesn't have to be only 802.11b/g/n! ([see wikipedia](https://en.wikipedia.org/wiki/IEEE_802.11))). The other scenario is when the owner is charging his vehicle at home.  
@@ -125,5 +131,5 @@ It’s needed to keep in mind, that Sigfox has a limitation in number of message
 In case of “broadcasting” via Wi-Fi, the application can evaluate the success of process; in case of Sigfox broadcasting, there is no acknowledgment from network possible. The availability of Wi-Fi, Sigfox, and possibly also some other connectivity is evaluated before each transmission, so the simulator/TCU can always make the decession for using the best suitable channel for each transmission. 
 Each Sigfox and W-Fi broadcasting “modules” are made as individual classes, so it’s easy to replace them/add other communication technology, if it would be suitable. 
 
-See [Communication Technologies]({{"/docs/communication-technologies/"|relative_link}}) article for more.
+See [Communication Technologies]({{ "/docs/communication-technologies/" | relative_link }}) article for more.
 
