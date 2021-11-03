@@ -8,9 +8,10 @@ sectionid: aboutme
 <blockquote>
   <h1>About me</h1><br>
 
-  <p>I am a fresh graduate in IT field, with love to IoT, SmartHome and Multimedia technologies. Worked in other amazing field during the university, so maybe not so experienced as pure IT students, but with strong enthusiasm which will help me to catch up with it.</p>
+  <p>I am a fresh graduate in the IT field, with a love for IoT, SmartHome, and Multimedia technologies. <br>
+  Worked in another amazing field during the university, so maybe not so experienced as pure IT students, but my strong enthusiasm will help me to catch up with it.</p>
 
-  <p>I studied at University of Zilina, in the beautiful, same-called city on the north of Slovakia.</p>
+  <p>I have studied at University of Zilina, in the beautiful, same-called city on the north of Slovakia.</p>
   
   <p>I’m really excited about all the new technologies and the possibilities they give us to explore in this fast changing world. I want to work on projects which will help to make cities more efficient, which will truely allow people to have more time, while experiencing the excitement from tech world.</p>
 

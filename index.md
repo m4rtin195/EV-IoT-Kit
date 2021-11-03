@@ -15,10 +15,9 @@ layout: default
         <div class="col-md-6">
             <h2 class="header-light regular-pad">What is EV-IoT-Kit?</h2>
             <blockquote>
-                <p>Originally, the practical part of my diploma thesis. </p>
-                <p>But besides, it's a group of projects that make up the <b>proof-of-concept</b> of the system, which allows the vehicle owner to check its state during the charging process when he is not close, or in any other situation.
+                <p>It's a group of projects that make up the <b>proof-of-concept</b> of the system, which allows the vehicle owner to check its state during the charging process when he is not close, or in any other situation.
                 Everything is designed with an emphasis on <b>simplicity</b> and <strong>reliability</strong> for the <i>user</i>, and <b>scalability</b> and <b>modularity</b> for the <i>developer</i>. Individual technologies can be easily switched for some others, according to the needs of the real project.</p>
-                <p>Or, it can be just an useful example of the full-stack IoT service.</p>
+                <p>Or, just a useful example of a full-stack IoT application.</p>
             </blockquote>
         </div>
         <div class="col-md-6 text-center">
@@ -42,7 +41,7 @@ layout: default
         <div class="col-sm-4">
             <h1 class="text-center"><i class="fa fa-android" aria-hidden="true"></i></h1>
             <h3 class="text-center">Android mobile user application</h3>
-            <p>An <code>Android</code>, Java-based app, serves as the service frontend and enables the vehicle's owner to check its state at any time and wherever he has internet connectivity. Login via email or Google account accesses the fleet of all his vehicles.</p>
+            <p>An <code>Android</code>, Java-based app serves as the service frontend and enables the vehicle's owner to check its state at any time and wherever he has internet connectivity. Login via email or Google account accesses the fleet of all his vehicles.</p>
         </div>
     </div>
 </div>
