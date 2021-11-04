@@ -3,9 +3,16 @@ title: "Sigfox"
 permalink: /docs/sigfox/
 ---
 
-Sigfox is one of the most popular LPWAN technologies, used globally around whole world. It works with the Ultra-Narrowband principe to achieve probably the biggest range across all its competitors, in parallel with extremely low energy consumption. 
+<div style="display:flex; flex-flow:row wrap; justify-content:center">
+  <div style="flex-grow:1; flex-basis:60%">
+    <p>Sigfox, sometimes called as a low-speed 0G network, is one of the most popular LPWAN technologies, used globally around the whole world for various M2M applications. It works on the Ultra-Narrowband principle to achieve probably the biggest range across all its competitors, in parallel with extremely low energy consumption.</p>
+  </div>
+  <div style="flex-grow:0; flex-basis:40%;">
+  	<a href="https://www.sigfox.com/" target="_blank"><img src="{{ "/assets/img/docs/sigfox_logo.png" | relative_url }}" alt="sigfox logo" style="max-width:100%; padding-left:20px; padding-right:30px; padding-top:10px;"></a>
+  </div>
+</div>
 
-The Sigfox is patented technology of the same-named **French company**, which also operates the main “hub”, cloud, where all the messages from all the endpoints end. If the previous sentence sounds weird to you, it is because Sigfox network(s) works in a really unique way. Namely, in every country, only one operator can operate the Sigfox network, and subsequently, he forward all the received messages from all operated <abbr title="Base Transceiver Station">BTS</abbr>'s, through the secured **VPN connection**, to the main Sigfox cloud, called `Sigfox Backend`, which process them and forward them to their recipients. Thanks to this, Sigfox can be considered as the one global network without geographical borders. Also from the technical point of view, things are designed in the way, that devices can seamlessly move between more networks (countries borders), without need to deal with roaming or changing radio configurations[^1].
+It's a patented technology of the same-named **French company**, which also operates the main “hub”, cloud, where all the messages from all the endpoints end. If the previous sentence sounds weird to you, it is because the Sigfox network(s) works in a really unique way. Namely, in every country, only one operator can operate the Sigfox network, and subsequently, he forward all the received messages from all operated <abbr title="Base Transceiver Station">BTS</abbr>'s, through the secured **VPN connection**, to the main Sigfox cloud, called `Sigfox Backend`, which process them and forward them to their recipients. Thanks to this, Sigfox can be considered as the one global network without geographical borders. Also from the technical point of view, things are designed in the way, that devices can seamlessly move between more networks (countries borders), without need to deal with roaming or changing radio configurations[^1].
 
 When it comes to availability, today Sigfox operates in **77 countries** of the world and covers **1,3 billion people**. The highest density of coverage is in Europe, where most of the countries have, or will have practically full coverage, except some mountainous areas, etc.
 
@@ -29,7 +36,6 @@ Overall, Sigfox, along with its main competitor (LoRa technology) are considered
 The reason why we chosed Sigfox as the used technology for our project is its simplicity, cheapness, reliability, available global network operated by trustworthy authority, and the seamless roaming possible around the whole globe. It means that the user can travel with his vehicle between the countries, and its functionality will be always available, without the need to set or configure something.
 
 The topic of Sigfox is widely covered in my diploma thesis (Slovak only).
-<br>
 <br>
 <br>
 

@@ -1,10 +1,10 @@
 ---
 title: "In short"
 permalink: /docs/inshort/
-#redirect_from: /docs
+#redirect_from: /docs/
 ---
 
-Originally, this is a practical part of my diploma thesis. The topic was proposed by *GlobalLogic Slovakia*, and I really liked the idea of a more complex system, from the field of IoT and electromobility, which has the potential to make the world smarter and greener.
+Originally, that's a practical part of my diploma thesis. The topic was proposed by *GlobalLogic Slovakia*, and I really liked the idea of a more complex system, from the field of IoT and electromobility, which has the potential to make the world smarter and greener.
 
 ### 💡 The idea behind this project.
 Did you know that only 31% of potential customers want to buy an electric vehicle (EV) as their next car? While the prices and range of EVs are already on the acceptable level, the most feared factor is the <u>charging speed</u>, especially on trips. Although the parameters of batteries and their charging passibilities are improving significantly in the last years, this project is about the second thing we can do with this inconvenience - <u>make that process more comfortable.</u>
@@ -12,14 +12,14 @@ Did you know that only 31% of potential customers want to buy an electric vehicl
 Whether it's at home or on trips, the vehicle’s owner needs to have the ability to check the charging progress and other things about his car, <u>remotely</u> - from his phone. And this needs to work all the time - regardless of the location, and without the need to connect anything manually. The customer wants to open an app and find, how far he can drive if he leaves right now, in 3 seconds. Every fail spoils the customer experience!
 
 ### ✎ What we designed.
-<div style="display: flex; flex-flow: row wrap;">
-  <div style="flex-basis:55%;">
+<div style="display:flex; flex-flow:row wrap;">
+  <div style="flex-basis:55%; min-width:400px">
     <p>The system, which sends the vehicle state to the cloud, where the data are stored and evaluated. Then, cloud proactively forwards this information to the owner’s smartphone through push messaging technology, to provide the most actual vehicle status to the user. We use redundant connectivity of end-devices, host the backend on a reliable public cloud, and have a native android app serving as the user’s client.</p>
     <p>After small changes in the android app, the project can be used also as a universal platform, not only for EVs, but also for any other (e.g. shared) vehicles, as electric scooters, motorcycles, e-bikes, or also non-smart devices as classic-bikes, with an additionally installable TCU.</p>
   </div>
   <div style="flex-basis:45%;">
     <a href="{{ "/assets/img/docs/diagram.png" | relative_url }}" data-lightbox="img">
-      <img src="{{ "/assets/img/docs/diagram.png" | relative_url }}" alt="project architecture" style="margin-top:15px; margin-left:20px;">
+      <img src="{{ "/assets/img/docs/diagram.png" | relative_url }}" alt="project architecture" style="margin-top:15px; margin-left:20px; max-width:100%;">
     </a>
   </div>
 </div>
@@ -27,7 +27,7 @@ Whether it's at home or on trips, the vehicle’s owner needs to have the abilit
 ### ⚙️ How it works.
 The project consists of 3 separate parts:
 
-<ul class="nav nav-tabs" style="margin-top: 20px;">
+<ul class="nav nav-tabs" style="margin-top:20px;">
   <li class="active"><a href="#simulator" data-toggle="tab">1. Vehicle simulator</a></li>
   <li><a href="#cloud" data-toggle="tab">2. Cloud backend</a></li>
   <li><a href="#app" data-toggle="tab">3. Android app</a></li>

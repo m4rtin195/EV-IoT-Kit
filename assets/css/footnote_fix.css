@@ -1,3 +1,9 @@
-[id]:before {
+[id]:before
+{
     display: inline;
+}
+
+.footnotes
+{
+    font-size: 14px;
 }

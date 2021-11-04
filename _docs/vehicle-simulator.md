@@ -123,13 +123,13 @@ The content of the message is like this:
 	</tbody>
 </table>
 
-This is not all the parameters which application simulates/vehicle’s telematics unit can provide. Rest of them (*location coordinates, desired temperature set for AC, maximal charging current, vehicle’s consumption, etc.*) can be send as another packet with “extended” values, or can be send only via Wi-Fi connectivity. This part is not finished and the solution is opened.
+These are not all parameters that the application simulates/vehicle’s TCU can provide. The rest of them (*location coordinates, desired temperature set for AC, maximal charging current, vehicle’s consumption, etc.*) can be sent as another packet with “extended” values, or can be sent only if WLAN connectivity is available. This part is not finished and the possible solution is opened.
 After preparing the packet, it is sent to the serial port, where the communication module is connected. The module is controlled and configured using `AT commands`.
 
-It’s needed to keep in mind, that Sigfox has a limitation in number of messages that can be sent from one device in one day, so also the broadcasting interval should to be different. In case of Wi-Fi connectivity available, the actual status can be reported to the cloud on a second basis. This configuration can be set in macros of component’s header files. 
+It’s needed to keep in mind, that Sigfox has a limitation in the number of messages that can be sent from one device in one day, so the broadcasting interval should be adjusted. In the case of WLAN connectivity available, the actual status can be reported to the cloud on a second basis. This configuration can be set in macros of components header files. 
 
-In case of “broadcasting” via Wi-Fi, the application can evaluate the success of process; in case of Sigfox broadcasting, there is no acknowledgment from network possible. The availability of Wi-Fi, Sigfox, and possibly also some other connectivity is evaluated before each transmission, so the simulator/TCU can always make the decession for using the best suitable channel for each transmission. 
-Each Sigfox and W-Fi broadcasting “modules” are made as individual classes, so it’s easy to replace them/add other communication technology, if it would be suitable. 
+In the case of “broadcasting” via WLAN, the application can evaluate the success of the process; in the case of Sigfox broadcasting, there is no acknowledgment from the network possible. The availability of WLAN, Sigfox, and possibly also some other connectivity is evaluated <u>before each transmission</u>, so the simulator/TCU can always make the decision for using the best suitable channel, for each transmission. 
+Both Sigfox and W-Fi broadcasting “modules” are made as individual classes, so it’s easy to replace them or add other communication technology, if it would be suitable. 
 
 See [Communication Technologies]({{ "/docs/communication-technologies/" | relative_link }}) article for more.
 
