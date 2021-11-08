@@ -36,8 +36,8 @@ In short, we know 3 approaches how to reach mentioned key features of LPWAN, for
         <div class="well">
   			<h4>Ultra Narrowband</h4>
     		<p>The signal is modulated into an extremely <b>narrow frequency band</b>. This achieves a low level of accumulated noise, thus high sensitivity during the reception is possible, and thus a <i>very high range</i> can be achieved. <br>
-			The most known technology of this type is <code>Sigfox</code>, which we also used for this project.</p>
-			<p>The problematic part is, that low bandwidth means <i>low transfer speed</i>, and low transfer speed means long transmission time. And low transmission time means a high probability of collisions with the broadcasting of other endpoints/technologies. If technology uses a non-licensed (and thus non-controlled) frequency band, this can be a serious problem. A possible solution is to broadcast the same message more times, which increases the probability of successful delivery on the one hand, but overwhelms the spectrum even more on the other hand.</p>
+			  The most known technology of this type is <code>Sigfox</code>, which we also used for this project.</p>
+	   		<p>The problematic part is, that low bandwidth means <i>low transfer speed</i>, and low transfer speed means long transmission time. And low transmission time means a high probability of collisions with the broadcasting of other endpoints/technologies. If technology uses a non-licensed (and thus non-controlled) frequency band, this can be a serious problem. A possible solution is to broadcast the same message more times, which increases the probability of successful delivery on the one hand, but overwhelms the spectrum even more on the other hand.</p>
     	</div>
     </div>
   </div>
@@ -58,7 +58,7 @@ In short, we know 3 approaches how to reach mentioned key features of LPWAN, for
         <div class="well">
         	<h4>Cellular-based</h4>
             <p>The previously explained technologies usually operate in so-called ISM, unlicensed bands, where more systems can operate on the same frequencies, and they do not synchronize each other in any way. Therefore, in different parts of the world, there are various regulations on fair using these free bands.</p>
-			<p>On the other end, there are <b>licensed bands</b>, which are privilegedly allocated to operators by some regulation authority. This is common and necessary in well-known classic mobile networks, which are built on cell-based architecture. The cell is the area covered by one base station, which controls it and takes care of synchronization and all the stuff to make transmissions safe and durable. Because these bands are heavily occupied by mobile services and are already divided between operators, the LPWAN technologies which can be implemented between them have emerged.</p>
+			<p>On the other end, there are <b>licensed bands</b>, which are privilegedly allocated to operators by some regulation authority. This is common and necessary in well-known classic mobile networks, which are built on cell-based architecture. The cell is the area covered by one base station, which controls it and takes care of synchronization and all the stuff to make transmissions safe and durable. Because these bands are heavily occupied by mobile services and are already divided between operators, LPWAN technologies which can be implemented between them have emerged.</p>
 			<p>The examples are <code>LTE-M</code> and <code>Nb-IoT</code>, which can coexist with classic mobile networks in the same bands or even cooperate with them. They use the same or similar principles, but are truncated of some features. The advantage is the <i>perfect robustness and reliability</i>, the cons are <i>higher costs</i>, the <i>need for authorization</i> into the network (SIM cards), complexity of the system, and so on.</p>
         </div>
     </div>

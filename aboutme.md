@@ -5,17 +5,29 @@ permalink: /aboutme/
 sectionid: aboutme
 ---
 
+<style>
+  .bigger-margin
+  {
+    margin-bottom: 24px;
+  }
+</style>
+
 <blockquote>
   <h1>About me</h1><br>
 
-  <p>I am a fresh graduate in the IT field, with a love for IoT, SmartHome, and Multimedia technologies. <br>
-  Worked in another amazing field during the university, so maybe not so experienced as pure IT students, but my strong enthusiasm will help me to catch up with it.</p>
+  <div class="bigger-margin" style="display:flex; flex-flow:row wrap-reverse; justify-content:center">
+    <div style="flex-grow:1; flex-basis:75%">
+      <p class="bigger-margin">Hey, I'm Martin! I am a fresh graduate in the IT field, with a love for IoT, SmartHome, and Multimedia technologies. Worked in another amazing field during the university, so maybe not so experienced, but my strong enthusiasm helps me to catch up on it.</p>
+      <p class="bigger-margin">I have studied at the University of Zilina, in the beautiful, same-called city in the north of <a href="https://www.youtube.com/watch?v=fbkEmW6PlXs/" target="_blank" class="no-lightbox">Slovakia</a>, but have also been in Portugal and Lithuania for a while.</p>
+    </div>
+    <div style="flex-grow:0; flex-basis:25%; min-width:200px; margin-top:-15px; padding-left:10px; padding-right:30px; margin-bottom:20px;">
+      <img src="{{ "/assets/img/docs/profile_pic.jpg" | relative_url }}" alt="profile picture" style="border-radius:50%; max-width:100%;">
+    </div>
+  </div>
 
-  <p>I have studied at University of Zilina, in the beautiful, same-called city on the north of Slovakia.</p>
-  
-  <p>I’m really excited about all the new technologies and the possibilities they give us to explore in this fast changing world. I want to work on projects which will help to make cities more efficient, which will truely allow people to have more time, while experiencing the excitement from tech world.</p>
+  <p class="bigger-margin">I’m really excited about all the new technologies, and the possibilities they give us to explore in this fast-changing world. I want to work on projects which will help to make cities more efficient, on ones, that will truly allow people to have more time, while experiencing the excitement of the tech world.</p>
 
-  <p>I hate to place a “Smart” stickers on everything just because it has a display. I believe that smart things should truely allow people to feel more confortable, and save their time, not to require them to set something up for 20 minutes only to get a notification that washer machine finished its work. Wanna know what else would I do? Write me an email!</p>
+  <p class="">But also, I hate placing “smart” stickers on everything, just because it has a display. I believe that smart things should truly allow people to feel more comfortable or save their time, not to require them to set something up for 20 minutes just to get a notification that the washer machine finished its work. Want to know what else would I do? Write me an email!</p>
 
   <br>
   <div style="display:flex; flex-flow:row wrap; justify-content:center; gap: 12px">

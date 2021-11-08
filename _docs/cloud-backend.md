@@ -6,7 +6,7 @@ permalink: /docs/cloud-backend/
 Totally 3 clouds/services are participating on this project: 
 
 ### Sigfox Cloud
-**Sigfox Cloud** is the main hub, or literally the backend of the Sigfox technology - all messages from all devices around the world ends here. It is managed by Sigfox company itself and is placed in France territory. In the background, it solves message conflicts (broadcasts captured by more BTSs), checks the security, integrity, and authorization of messages. In the front, it sorts messages between user’s device groups and individual devices, calculates metrics, can decode messages payloads, and distributes them to next, external services. We use the “*callback*” mechanism, which invokes HTTP requests on external REST API, on each event, but also requesting data using its own API is possible. 
+**Sigfox Cloud** is the main hub, or literally the backend of the Sigfox technology - all messages from all devices around the world ends here. It is managed by Sigfox company itself and is placed in France territory. In the background, it solves message conflicts (broadcasts captured by more BTSs), checks the security, integrity, and authorization of messages. In the front, it sorts messages between user’s device groups and individual devices, calculates metrics, can decode messages payloads, and distributes them to next, external services. We use the *callback* mechanism, which invokes HTTP requests on external REST API, on each event, but also requesting data using its own API is possible. 
 
 <u>In our case</u>, upon a new message from the vehicle is received, it is decompressed (reverse bite-shifts by custom grammar), JSON object is built, necessary HTTP headers are attached, and a request to our backend on AWS is made.
 
