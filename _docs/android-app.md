@@ -5,7 +5,7 @@ permalink: /docs/android-app/
 
 
 <div style="display: flex; flex-flow: row wrap; justify-content:center">
-	<div style="flex-grow:1; flex-basis:65%; min-width:400px">
+	<div style="flex-grow:1; flex-basis:65%;">
 		<p>The last part of our system is a client’s app for smartphones, using which the vehicle owners can access the transferred information. From their point of view, it’s the most important part, as it’s the only thing they come to contact with. If the whole system should fulfill the role to which it was created, it is very important to have this app designed thoughtfully, with emphasis on a good <b>user experience (UX)</b>. Bad experience with the application would translate into dissatisfaction with the whole system and lack of interest in its use. Therefore, we placed a focus on simplicity, clear design, and intuitiveness of UI.</p>
 		<u>The functionalities we implemented are:</u>
 		<ol>
@@ -17,9 +17,9 @@ permalink: /docs/android-app/
 		<br>
 		<p>We have created a native app for Android OS, written in <code>Java</code>, also with help of Google Firebase for some features. We tried to follow Google’s recommended design patterns, for example, the whole app is designed as <b>Single-Activity</b> (except login screen), with <code>Fragments</code> switching within it. Internally, we used the <b>MVVM architecture</b> with help of <code>ViewModels</code>, as well as many other components from the <code>Android Jetpack</code> library. For easier communication between GUI components and the logical layer, a <code>View-binding</code> mechanism is used.</p>
 	</div>
-	<div style="flex-grow:0; flex-basis:35%;">
+	<div style="flex-grow:0; flex-basis:35%; padding-top:0px; padding-left:20px; padding-right:20px; min-width:230px">
 		<a href="{{ "/assets/img/docs/app1_full.jpg" | relative_url }}" data-lightbox="app-screens">
-    		<img src="{{ "/assets/img/docs/app1.png" | relative_url }}" alt="app dashboard screenshot" style="padding-top:0px; padding-left:20px; padding-right: 20px; max-width:100%;">
+    		<img src="{{ "/assets/img/docs/app1.png" | relative_url }}" alt="app dashboard screenshot" style="max-width:100%; ">
 		</a>
   </div>
 </div>
@@ -55,6 +55,11 @@ From here, it’s also possible to jump to the <b><u>Settings screen</u></b>, wh
 	<div style="flex-basis:19rem">
 		<a href="{{ "/assets/img/docs/app6_full.jpg" | relative_url }}" data-lightbox="app-screens">
 			<img src="{{ "/assets/img/docs/app6.png" | relative_url }}" alt="app map screen">
+		</a>
+	</div>
+	<div style="flex-basis:19rem">
+		<a href="{{ "/assets/img/docs/app7_full.jpg" | relative_url }}" data-lightbox="app-screens">
+			<img src="{{ "/assets/img/docs/app7.png" | relative_url }}" alt="app map screen">
 		</a>
 	</div>
 </div>

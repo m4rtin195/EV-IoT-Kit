@@ -3,8 +3,8 @@ title:  "Vehicle Simulator"
 permalink: /docs/vehicle-simulator/
 ---
 
-<div style="display: flex; flex-flow: row wrap;">
-	<div style="flex-basis:55%;">
+<div style="display: flex; flex-flow: row wrap; justify-content:center">
+	<div style="flex-grow:1; flex-basis:55%;">
 		<p>The first component of the system is the simulator of electric-vehicle, respectively, of its <b>telematics unit</b> (<abbr title="Telematics Control Unit">TCU</abbr>), which is built on <code>Raspberry Pi 4B</code>. The microcomputer is housed in a box with a small touchscreen, inside which is also the Sigfox communication module connected to the <code>UART</code> interface, including a small antenna, and <code>BMP280</code> temperature sensor, connected to the <code>I2C</code> bus.</p>
 		<p>The <code>Raspberry Pi OS</code> runs an application written in <code>C++</code> and the <code>Qt framework</code>, using which the GUI for simulator control is created.  Internally, the application consists from 4 components:
 		<ul>
@@ -14,8 +14,8 @@ permalink: /docs/vehicle-simulator/
 			<li><b>Logger</b></li>
 		</ul></p>
 	</div>
-	<div style="flex-basis:45%;">
-    	<img src="{{ "/assets/img/docs/simulator.png" | relative_url }}" alt="simulator device" style="margin-top:20px; margin-left:15px;">
+	<div style="flex-grow:0; flex-basis:45%; min-width:300px;">
+    	<a href="{{ "/assets/img/docs/simulator.png" | relative_url }}" data-lightbox="img"><img src="{{ "/assets/img/docs/simulator.png" | relative_url }}" alt="simulator device" style="max-width:100%; margin-top:10px; margin-left:15px;"></a>
   </div>
 </div>
 
@@ -31,7 +31,7 @@ The simulation process is made by mathematical logarithmic equations which imita
 ### Broadcasting
 The “broadcasting” to the cloud backend is possible by 2 ways: 
 - through <b><u>WLAN</u></b> - standard HTTP calls to backend API, over Raspberry’s network connectivity.
-- through <b><u><a href="{{ "/docs/sigfox/" | relative_link }}">Sigfox</a></u></b> technology - modern IoT, LPWAN 
+- through <b><u><a href="{{ "/docs/sigfox/" | relative_url }}">Sigfox</a></u></b> technology - modern IoT, LPWAN 
 network, of which network is available on wide areas worldwide.
 
 The idea behind this is, that WLAN connectivity can be used when the vehicle is located at the brand’s own or partners charging stations, where the vehicle is able to automatically connect to a <u>secure</u>, local Wi-Fi network (be aware that *Wi-Fi* doesn't have to be only 802.11b/g/n! ([see wikipedia](https://en.wikipedia.org/wiki/IEEE_802.11))). The other scenario is when the owner is charging his vehicle at home.  
@@ -131,5 +131,18 @@ It’s needed to keep in mind, that Sigfox has a limitation in the number of mes
 In the case of “broadcasting” via WLAN, the application can evaluate the success of the process; in the case of Sigfox broadcasting, there is no acknowledgment from the network possible. The availability of WLAN, Sigfox, and possibly also some other connectivity is evaluated <u>before each transmission</u>, so the simulator/TCU can always make the decision for using the best suitable channel, for each transmission. 
 Both Sigfox and W-Fi broadcasting “modules” are made as individual classes, so it’s easy to replace them or add other communication technology, if it would be suitable. 
 
-See [Communication Technologies]({{ "/docs/communication-technologies/" | relative_link }}) article for more.
+<div style="display:flex; flex-flow:row wrap; justify-content:center; align-items:center; gap:20px; margin-top:20px; margin-bottom:20px;">
+	<div style="flex-basis:30rem">
+		<a href="{{ "/assets/img/docs/gui.png" | relative_url }}" data-lightbox="">
+			<img src="{{ "/assets/img/docs/gui.png" | relative_url }}" alt="simulator gui">
+		</a>
+	</div>
+	<div style="flex-basis:30rem">
+		<a href="{{ "/assets/img/docs/modem.png" | relative_url }}" data-lightbox="">
+			<img src="{{ "/assets/img/docs/modem.png" | relative_url }}" alt="sigfox modem">
+		</a>
+	</div>
+</div>
+
+See [Communication Technologies]({{ "/docs/communication-technologies/" | relative_url }}) article for more.
 

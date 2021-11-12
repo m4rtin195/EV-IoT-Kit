@@ -20,8 +20,8 @@ sectionid: aboutme
       <p class="bigger-margin">Hey, I'm Martin! I am a fresh graduate in the IT field, with a love for IoT, SmartHome, and Multimedia technologies. Worked in another amazing field during the university, so maybe not so experienced, but my strong enthusiasm helps me to catch up on it.</p>
       <p class="bigger-margin">I have studied at the University of Zilina, in the beautiful, same-called city in the north of <a href="https://www.youtube.com/watch?v=fbkEmW6PlXs/" target="_blank" class="no-lightbox">Slovakia</a>, but have also been in Portugal and Lithuania for a while.</p>
     </div>
-    <div style="flex-grow:0; flex-basis:25%; min-width:200px; margin-top:-15px; padding-left:10px; padding-right:30px; margin-bottom:20px;">
-      <img src="{{ "/assets/img/docs/profile_pic.jpg" | relative_url }}" alt="profile picture" style="border-radius:50%; max-width:100%;">
+    <div style="flex-grow:0; flex-basis:25%; min-width:200px; margin-top:-15px; padding-left:15px; padding-right:15px; margin-bottom:20px;">
+      <a href="{{ "/assets/img/profile_pic.jpg" | relative_url }}" data-lightbox="img"><img src="{{ "/assets/img/profile_pic.jpg" | relative_url }}" alt="profile picture" style="border-radius:50%; max-width:100%;"></a>
     </div>
   </div>
 
