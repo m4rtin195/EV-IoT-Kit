@@ -29,17 +29,15 @@ public:
     void enable(bool b);
     bool isEnabled();
     void setInitialValues();
-    int setState(Vehicle::State s, float _current = 0, float _target_charge = 0); //can be called also directly from main thread! (is it ok?)
+    int setState(Vehicle::State s, float _current = 0, float _target_charge = 0); //NOTE may be called also directly from main thread!
     void setCharge(float level);    // aj toto
     void setCurrent(float current); // -//-
 
 private:
     Vehicle* v;
     QTimer* tickTimer;
-    QTimer timer2; //TODO ???
     QElapsedTimer SStimestamp;
 
-    //int _setState(Vehicle::State s, float _current, float _target_charge);
     float _calcCharge();
     void _calcOthers();
 
@@ -48,8 +46,6 @@ signals:
     void logRequest(bool brief, bool priority = false);
     void broadcastRequest(bool priority = false);
     void _simulateRequest();
-
-    //void _setStateRequest(Vehicle::State, float, float);
 
 private slots:
     void _simulate();
