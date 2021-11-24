@@ -2,6 +2,8 @@
 <br>
 
 1. **Sigfox Cloud**
+  - devices linking
+  - Callbacks API
 <br>
 
 2. **Amazon Web Services (AWS)**
