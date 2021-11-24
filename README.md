@@ -14,4 +14,4 @@ And, my Diploma Thesis practical part.
 4. **Github Pages** branch: [../tree/gh-pages](../../tree/gh-pages)  
 ![](https://img.shields.io/badge/-Jekyll-blue?style=flat-square)
 <br>  
-2021
+2021.
