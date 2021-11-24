@@ -15,3 +15,6 @@
   - Cloud Firestore
   - Cloud Storage
   - Cloud Messaging
+<br>
+
+For AWS part API visualisation, see [Swagger UI](https://app.swaggerhub.com/apis-docs/martin195/EV-IoT-Kit/).
