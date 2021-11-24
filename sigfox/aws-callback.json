@@ -1,0 +1,36 @@
+{
+	"callback_id": "6085e352417581078ee1b505",
+	"callback_enabled": true,
+	"callback_batch": false,
+	"type": ["DATA", "BIDIR"],
+	"channel": "URL",
+	"payload-config": "state:0:uint:3:big-endian:7 current_charge:0:uint:7:big-endian:4 target_charge:1:uint:7:big-endian:5 current:2:uint:10:big-endian:6 elapsed_time:3:uint:13:big-endian:4 remain_time:5:uint:13:big-endian:7 range:6:uint:11:big-endian:2 elec_consumption:8:uint:16:big-endian:7 indoor_temp:10:uint:16:big-endian:7",
+	"url-pattern": "https://uilqy1jfsf.execute-api.eu-central-1.amazonaws.com/v2/sigfox/uplink",
+	"http-method": "POST",
+	"send-sni": true,
+	"headers": {
+		"x-api-key": "[removed]",
+		"connectivityMethod": "sigfox",
+		"x-debug-mode": true,
+		"time": "${time}"
+	},
+	"content-type": "application/json",
+	"body": {
+	  	"timestamp": "${time}",
+	  	"vehicleId": "'${device}'",
+	    "seqNumber": "${seqNumber}",
+	    "rawdata": "'${data}'",
+	    "advanced": false,
+	    "connectivity": 2,
+	  
+	  	"state": "${customData#state}",
+	  	"current_charge": "${customData#current_charge}",
+	  	"target_charge": "${customData#target_charge}",
+	  	"current": "${customData#current}",
+	  	"elapsed_time": "${customData#elapsed_time}",
+	  	"remain_time": "${customData#remain_time}",
+	  	"range": "${customData#range}",
+	  	"elec_consumption": "${customData#elec_consumption}",
+	  	"indoor_temp": "${customData#indoor_temp}"
+	}
+}
