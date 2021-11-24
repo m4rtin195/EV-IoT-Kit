@@ -13,3 +13,5 @@ And, my Diploma Thesis practical part.
 ![](https://img.shields.io/badge/-Java-green?style=flat-square) ![](https://img.shields.io/badge/-Firebase-blue?style=flat-square)
 4. **Github Pages** branch: [../tree/gh-pages](../../tree/gh-pages)  
 ![](https://img.shields.io/badge/-Jekyll-blue?style=flat-square)
+  
+2021
