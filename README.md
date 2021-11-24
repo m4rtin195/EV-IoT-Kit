@@ -1,4 +1,4 @@
-### Cloud-part
+### Cloud Backend part
 <br>
 
 1. **Sigfox Cloud**
