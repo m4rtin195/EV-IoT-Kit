@@ -1,11 +1,11 @@
 # EV-IoT-Kit
-### Diplomovka
+### Universal and modular full-stack system for connecting EV's or any other vehicles to the cloud and to their owners, using a mobile application as its control interface.
+#### And, my Diploma Thesis practical part.
+### See [Presentation Website](https://m4rtin195.github.io/EV-IoT-Kit/) for all info.
+<br>
 
-
-Compiler used for windows: `gcc version 8.1.0 (x86_64-posix-seh-rev0, Built by MinGW-W64 project)` <br/>
-  Target: `x86_64-w64-mingw32` <br/>
-Compiler used for linux: `gcc version 8.3.0 (Raspbian 8.3.0-6+rpi1)` <br/>
-  Target: `arm-linux-gnueabihf` <br/>
-
-Thread model: `posix`  
-Compilation parameters: `-std=c++1z` `-pthread`
+**This project consists of more parts, stored in their own branches/repository:**
+1. **Vehicle Simulator** branch: [../tree/simulator](../../tree/simulator)  
+2. **Cloud Part** branch: [../tree/cloud](../../tree/cloud)  
+3. **Android App** repository: [github.com/m4rtin195/CarCharge](https://github.com/m4rtin195/CarCharge)  
+4. **Github Pages** branch: [../tree/gh-pages](../../tree/gh-pages)  
