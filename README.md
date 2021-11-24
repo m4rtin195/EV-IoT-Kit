@@ -1,7 +1,7 @@
 # EV-IoT-Kit
 ### Universal and modular full-stack system for connecting EV's or any other vehicles to the cloud and to their owners, using a mobile application as its control interface.
 #### And, my Diploma Thesis practical part.
-### See [Presentation Website](https://m4rtin195.github.io/EV-IoT-Kit/) for all info.
+### See [Presentation website](https://m4rtin195.github.io/EV-IoT-Kit/) for all info.
 <br>
 
 **This project consists of more parts, stored in their own branches/repository:**
