@@ -1,0 +1,168 @@
+{
+  "ModelName": "EV-IoT-Kit Backend database",
+  "ModelMetadata": {
+    "Author": "martin195",
+    "DateCreated": "Nov 23, 2021, 22:29 AM",
+    "DateLastModified": "Nov 23, 2021, 22:39 AM",
+    "Description": "",
+    "AWSService": "Amazon DynamoDB",
+    "Version": "3.0"
+  },
+  "DataModel": [
+    {
+      "TableName": "fcm-registrations",
+      "KeyAttributes": {
+        "PartitionKey": {
+          "AttributeName": "vehicleId",
+          "AttributeType": "S"
+        },
+        "SortKey": {
+          "AttributeName": "fcmToken",
+          "AttributeType": "S"
+        }
+      },
+      "NonKeyAttributes": [
+        {
+          "AttributeName": "renewTimestamp",
+          "AttributeType": "N"
+        }
+      ],
+      "DataAccess": {
+        "MySql": {}
+      },
+      "BillingMode": "PROVISIONED",
+      "ProvisionedCapacitySettings": {
+        "ProvisionedThroughput": {
+          "ReadCapacityUnits": 5,
+          "WriteCapacityUnits": 5
+        }
+      }
+    },
+    {
+      "TableName": "vehicle-registrations",
+      "KeyAttributes": {
+        "PartitionKey": {
+          "AttributeName": "userId",
+          "AttributeType": "S"
+        },
+        "SortKey": {
+          "AttributeName": "vehicleId",
+          "AttributeType": "S"
+        }
+      },
+      "DataAccess": {
+        "MySql": {}
+      },
+      "BillingMode": "PROVISIONED",
+      "ProvisionedCapacitySettings": {
+        "ProvisionedThroughput": {
+          "ReadCapacityUnits": 5,
+          "WriteCapacityUnits": 5
+        }
+      }
+    },
+    {
+      "TableName": "vehicle-statuses",
+      "KeyAttributes": {
+        "PartitionKey": {
+          "AttributeName": "vehicleId",
+          "AttributeType": "S"
+        },
+        "SortKey": {
+          "AttributeName": "id",
+          "AttributeType": "S"
+        }
+      },
+      "NonKeyAttributes": [
+        {
+          "AttributeName": "timestamp",
+          "AttributeType": "N"
+        },
+        {
+          "AttributeName": "connectivity",
+          "AttributeType": "N"
+        },
+        {
+          "AttributeName": "state",
+          "AttributeType": "N"
+        },
+        {
+          "AttributeName": "current_charge",
+          "AttributeType": "N"
+        },
+        {
+          "AttributeName": "target_charge",
+          "AttributeType": "N"
+        },
+        {
+          "AttributeName": "current",
+          "AttributeType": "N"
+        },
+        {
+          "AttributeName": "elapsed_time",
+          "AttributeType": "N"
+        },
+        {
+          "AttributeName": "remain_time",
+          "AttributeType": "N"
+        },
+        {
+          "AttributeName": "range",
+          "AttributeType": "N"
+        },
+        {
+          "AttributeName": "outdoor_temperature",
+          "AttributeType": "N"
+        },
+        {
+          "AttributeName": "indoor_temperature",
+          "AttributeType": "N"
+        },
+        {
+          "AttributeName": "desired_temperature",
+          "AttributeType": "N"
+        },
+        {
+          "AttributeName": "max_current",
+          "AttributeType": "N"
+        },
+        {
+          "AttributeName": "location",
+          "AttributeType": "S"
+        },
+        {
+          "AttributeName": "advanced",
+          "AttributeType": "BOOL"
+        }
+      ],
+      "GlobalSecondaryIndexes": [
+        {
+          "IndexName": "vehicleId-timestamp-index",
+          "KeyAttributes": {
+            "PartitionKey": {
+              "AttributeName": "vehicleId",
+              "AttributeType": "S"
+            },
+            "SortKey": {
+              "AttributeName": "timestamp",
+              "AttributeType": "N"
+            }
+          },
+          "Projection": {
+            "ProjectionType": "ALL"
+          }
+        }
+      ],
+      "DataAccess": {
+        "MySql": {}
+      },
+      "BillingMode": "PROVISIONED",
+      "ProvisionedCapacitySettings": {
+        "ProvisionedThroughput": {
+          "ReadCapacityUnits": 5,
+          "WriteCapacityUnits": 5
+        }
+      }
+    }
+  ]
+}
