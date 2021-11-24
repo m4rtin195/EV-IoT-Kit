@@ -1,12 +1,16 @@
-### EV-IoT-Kit cloud-part
+### Cloud-part
+<br>
 
 1. **Sigfox Cloud**
-  -
-3. **Amazon Web Services (AWS)**
+<br>
+
+2. **Amazon Web Services (AWS)**
   - API Gateway
   - Lambda
   - DynamoDB
-4. **Google Firebase**
+<br>
+  
+3. **Google Firebase**
   - Authentication
   - Cloud Firestore
   - Cloud Storage
