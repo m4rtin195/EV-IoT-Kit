@@ -1,4 +1,4 @@
-### Presentation Webpage (GitHub Pages)
+### Presentation Website (GitHub Pages)
 <br>
 
 - based on `Jekyll` and *Jekyll Doc Theme*
