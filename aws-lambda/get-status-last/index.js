@@ -37,7 +37,7 @@ exports.handler = async function(event, context, callback)
         }
         else
         {
-            lambda_reply.statusCode = 402;
+            lambda_reply.statusCode = 204;
             callback(null, lambda_reply);
         }
     }).catch((err) => console.error(err));
