@@ -1,18 +1,19 @@
 openapi: "3.0.1"
 info:
   title: "EV-IoT-Kit API"
-  description: "This is an API for cloud backend of EV-IoT-Kit project, part of my\
-    \ Diploma thesis. Server side is running on AWS API Gateway. \n\n More about project\
-    \ at\n[m4rtin195.github.io/EV-IoT-Kit/](https://m4rtin195.github.io/EV-IoT-Kit/)\
+  description: "This is an API for cloud backend of EV-IoT-Kit project. Server side\
+    \ is running on AWS API Gateway. \n\n More about project at\n[m4rtin195.github.io/EV-IoT-Kit/](https://m4rtin195.github.io/EV-IoT-Kit/)\
     \ \n\n Martin Timko, 2021"
   contact:
     email: "martin.timko195@gmail.com"
   version: "v3"
+
 servers:
 - url: "https://uilqy1jfsf.execute-api.eu-central-1.amazonaws.com/{basePath}"
   variables:
     basePath:
-      default: "/v3"
+      default: "v3"
+
 tags:
 - name: "Sigfox"
   description: "Endpoints for Sigfox Backend."
@@ -23,15 +24,21 @@ tags:
   description: "Endpoints for direct vehicle connection."
 - name: "Android"
   description: "Endpoints for Android client."
+
 paths:
-  /android/fcm-register:
-    post:
+  /android/last:
+    get:
       tags:
       - "Android"
-      description: "Register the app instance to FCM updates."
+      description: "Get the last available status for the requested vehicle."
       parameters:
       - name: "userId"
         in: "header"
+        required: true
+        schema:
+          type: "string"
+      - name: "vehicleId"
+        in: "query"
         required: true
         schema:
           type: "string"
@@ -39,85 +46,46 @@ paths:
         in: "header"
         schema:
           type: "string"
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: "#/components/schemas/FcmRegistration"
-        required: true
       responses:
+        "200":
+          description: "OK"
+          content: {}
         "400":
-          description: "400 response"
+          description: "Bad Request"
           content: {}
         "401":
           description: "Unauthorized"
           content: {}
-        "200":
-          description: "OK"
+        "500":
+          description: "Server Error"
+          content: {}
+        "204":
+          description: "Status for the requested vehicleId was not found"
+          content: {}
+        "403":
+          description: "Vehicle Forbidden"
           content: {}
       security:
       - User-Authorizer: []
       - api_key: []
-      x-amazon-apigateway-request-validator: "Validate body, query string parameters,\
-        \ and headers"
+      x-amazon-apigateway-request-validator: "Validate query string parameters and\
+        \ headers"
       x-amazon-apigateway-integration:
-        type: "mock"
+        httpMethod: "POST"
+        uri: "arn:aws:apigateway:eu-central-1:lambda:path/2015-03-31/functions/arn:aws:lambda:eu-central-1:801154222515:function:get-status-last/invocations"
         responses:
           default:
             statusCode: "200"
-        requestTemplates:
-          application/json: "{\"statusCode\": 200}"
         passthroughBehavior: "when_no_match"
-  /android/fcm-unregister:
-    post:
-      deprecated: true
-      tags:
-      - "Android"
-      parameters:
-      - name: "userId"
-        in: "header"
-        required: true
-        schema:
-          type: "string"
-      - name: "User-Agent"
-        in: "header"
-        schema:
-          type: "string"
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: "#/components/schemas/FcmRegistration"
-        required: true
-      responses:
-        "400":
-          description: "400 response"
-          content: {}
-        "401":
-          description: "401 response"
-          content: {}
-        "200":
-          description: "200 response"
-          content: {}
-      security:
-      - User-Authorizer: []
-      - api_key: []
-      x-amazon-apigateway-request-validator: "Validate body, query string parameters,\
-        \ and headers"
-      x-amazon-apigateway-integration:
-        type: "mock"
-        responses:
-          default:
-            statusCode: "200"
-        requestTemplates:
-          application/json: "{\"statusCode\": 200}"
-        passthroughBehavior: "when_no_match"
+        contentHandling: "CONVERT_TO_TEXT"
+        type: "aws_proxy"
+  
   /android/range:
     get:
       tags:
       - "Android"
-      description: "Get bulk of available statuses for requested vehicle, from requested\
-        \ time range."
+      description: "Get bulk of available statuses for the requested vehicle, from\
+        \ requested time range."
       parameters:
       - name: "userId"
         in: "header"
@@ -144,14 +112,20 @@ paths:
         schema:
           type: "string"
       responses:
-        "404":
-          description: "Statuses for requested vehicleId were not found."
-          content: {}
         "200":
           description: "OK"
           content: {}
+        "400":
+          description: "400 response"
+          content: {}
         "401":
-          description: "Unauthorized"
+          description: "Bad Request"
+          content: {}
+        "500":
+          description: "Server Error"
+          content: {}
+        "204":
+          description: "Statuses for the requested vehicleId or range were not found."
           content: {}
         "403":
           description: "Vehicle Forbidden"
@@ -162,7 +136,6 @@ paths:
       x-amazon-apigateway-request-validator: "Validate query string parameters and\
         \ headers"
       x-amazon-apigateway-integration:
-        type: "aws_proxy"
         httpMethod: "POST"
         uri: "arn:aws:apigateway:eu-central-1:lambda:path/2015-03-31/functions/arn:aws:lambda:eu-central-1:801154222515:function:get-status-range/invocations"
         responses:
@@ -170,9 +143,148 @@ paths:
             statusCode: "200"
         passthroughBehavior: "when_no_match"
         contentHandling: "CONVERT_TO_TEXT"
+        type: "aws_proxy"
+  
+  /android/fcm-register:
+    post:
+      tags:
+      - "Android"
+      description: "Registers or unregisters the app instance to FCM updates."
+      parameters:
+      - name: "userId"
+        in: "header"
+        required: true
+        schema:
+          type: "string"
+      - name: "vehicleId"
+        in: "query"
+        required: true
+        schema:
+          type: "string"
+      - name: "User-Agent"
+        in: "header"
+        schema:
+          type: "string"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/FcmRegistration"
+        required: true
+      responses:
+        "200":
+          description: "OK"
+          content: {}
+        "400":
+          description: "Bad Request"
+          content: {}
+        "401":
+          description: "Unauthorized"
+          content: {}
+        "500":
+          description: "Server Error"
+          content: {}
+        "403":
+          description: "Vehicle Forbidden"
+          content: {}
+      security:
+      - User-Authorizer: []
+      - api_key: []
+      x-amazon-apigateway-request-validator: "Validate body, query string parameters,\
+        \ and headers"
+      x-amazon-apigateway-integration:
+        httpMethod: "POST"
+        uri: "arn:aws:apigateway:eu-central-1:lambda:path/2015-03-31/functions/arn:aws:lambda:eu-central-1:801154222515:function:fcm-registration/invocations"
+        responses:
+          default:
+            statusCode: "200"
+        passthroughBehavior: "when_no_match"
+        contentHandling: "CONVERT_TO_TEXT"
+        type: "aws_proxy"
+  
+  /*proxy*:
+    x-amazon-apigateway-any-method:
+      parameters:
+      - name: "proxy"
+        in: "path"
+        required: true
+        schema:
+          type: "string"
+      responses:
+        "418":
+          description: "Wrong path/method"
+          content: {}
+      x-amazon-apigateway-integration:
+        responses:
+          default:
+            statusCode: "418"
+        requestTemplates:
+          application/json: "{\"statusCode\": 200}"
+        passthroughBehavior: "when_no_match"
+        type: "mock"
+  
+  /android/fcm-unregister:
+    post:
+      deprecated: true
+      tags:
+      - "Android"
+      description: "Deprecated. Use fcm-register with 'register: false' instead. \n\
+        Registers the app instance to FCM updates."
+      parameters:
+      - name: "userId"
+        in: "header"
+        required: true
+        schema:
+          type: "string"
+      - name: "vehicleId"
+        in: "query"
+        required: true
+        schema:
+          type: "string"
+      - name: "User-Agent"
+        in: "header"
+        schema:
+          type: "string"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/FcmRegistration"
+        required: true
+      responses:
+        "200":
+          description: "OK"
+          content: {}
+        "400":
+          description: "Bad Request"
+          content: {}
+        "401":
+          description: "Unauthorized"
+          content: {}
+        "500":
+          description: "Server Error"
+          content: {}
+        "403":
+          description: "Vehicle Forbidden"
+          content: {}
+      security:
+      - User-Authorizer: []
+      - api_key: []
+      x-amazon-apigateway-request-validator: "Validate body, query string parameters,\
+        \ and headers"
+      x-amazon-apigateway-integration:
+        httpMethod: "POST"
+        uri: "arn:aws:apigateway:eu-central-1:lambda:path/2015-03-31/functions/arn:aws:lambda:eu-central-1:801154222515:function:fcm-registration/invocations"
+        responses:
+          default:
+            statusCode: "200"
+        passthroughBehavior: "when_no_match"
+        contentHandling: "CONVERT_TO_TEXT"
+        type: "aws_proxy"
+  
   /online:
     head:
-      description: "Check if API is online."
+      description: "For check if API is online."
       operationId: "headOnline"
       responses:
         "200":
@@ -183,7 +295,6 @@ paths:
                 type: "string"
           content: {}
       x-amazon-apigateway-integration:
-        type: "mock"
         responses:
           default:
             statusCode: "200"
@@ -192,6 +303,8 @@ paths:
         requestTemplates:
           application/json: "{\"statusCode\": 200}"
         passthroughBehavior: "when_no_match"
+        type: "mock"
+  
   /test:
     post:
       description: "Used for testing."
@@ -200,21 +313,46 @@ paths:
         "200":
           description: "..."
           content: {}
+        "418":
+          description: "Wrong path/method"
+          content: {}
+      security:
+      - User-Authorizer: []
       x-amazon-apigateway-integration:
-        type: "aws"
+        responses:
+          default:
+            statusCode: "200"
+        requestTemplates:
+          application/json: "{\"statusCode\": 200}"
+        passthroughBehavior: "when_no_match"
+        type: "mock"
+    x-amazon-apigateway-any-method:
+      responses:
+        "418":
+          description: "Wrong path/method"
+          content: {}
+      x-amazon-apigateway-integration:
         httpMethod: "POST"
-        uri: "arn:aws:apigateway:eu-central-1:lambda:path/2015-03-31/functions/arn:aws:lambda:eu-central-1:801154222515:function:api-authorizer/invocations"
+        uri: "arn:aws:apigateway:eu-central-1:lambda:path/2015-03-31/functions/arn:aws:lambda:eu-central-1:801154222515:function:proxy-418/invocations"
         responses:
           default:
             statusCode: "200"
         passthroughBehavior: "when_no_match"
         contentHandling: "CONVERT_TO_TEXT"
+        type: "aws_proxy"
+  
   /sigfox/uplink:
     post:
       tags:
       - "Sigfox"
       description: "For obtaining new data from Sigfox Backend."
       operationId: "postSigfoxUplink"
+      parameters:
+      - name: "connectivityMethod"
+        in: "header"
+        required: true
+        schema:
+          type: "string"
       requestBody:
         content:
           application/json:
@@ -222,21 +360,26 @@ paths:
               $ref: "#/components/schemas/VehicleStatus"
         required: true
       responses:
+        "207":
+          description: "Partially failed, check body for more details"
+          content: {}
+        "201":
+          description: "Successfully wrote into the database and sent to FCM backend"
+          content: {}
         "400":
-          description: "Parsing error"
+          description: "Bad Request"
           content: {}
         "401":
           description: "Unauthorized"
           content: {}
-        "200":
-          description: "OK"
+        "500":
+          description: "Server Error"
           content: {}
       security:
       - api_key: []
       x-amazon-apigateway-request-validator: "Validate body, query string parameters,\
         \ and headers"
       x-amazon-apigateway-integration:
-        type: "aws_proxy"
         httpMethod: "POST"
         uri: "arn:aws:apigateway:eu-central-1:lambda:path/2015-03-31/functions/arn:aws:lambda:eu-central-1:801154222515:function:status-receive/invocations"
         responses:
@@ -244,20 +387,23 @@ paths:
             statusCode: "200"
         passthroughBehavior: "when_no_match"
         contentHandling: "CONVERT_TO_TEXT"
+        type: "aws_proxy"
+  
   /:
-    get:
+    x-amazon-apigateway-any-method:
       responses:
-        "200":
-          description: "200 response"
+        "418":
+          description: "Wrong path/method"
           content: {}
       x-amazon-apigateway-integration:
-        type: "mock"
         responses:
           default:
-            statusCode: "200"
+            statusCode: "418"
         requestTemplates:
           application/json: "{\"statusCode\": 200}"
         passthroughBehavior: "when_no_match"
+        type: "mock"
+  
   /wlan:
     post:
       tags:
@@ -276,21 +422,26 @@ paths:
               $ref: "#/components/schemas/VehicleStatus"
         required: true
       responses:
+        "207":
+          description: "Partially failed, check body for more details"
+          content: {}
+        "201":
+          description: "Successfully wrote into the database and sent to FCM backend"
+          content: {}
         "400":
-          description: "Parsing error"
+          description: "Bad Request"
           content: {}
         "401":
           description: "Unauthorized"
           content: {}
-        "200":
-          description: "OK"
+        "500":
+          description: "Server Error"
           content: {}
       security:
       - api_key: []
       x-amazon-apigateway-request-validator: "Validate body, query string parameters,\
         \ and headers"
       x-amazon-apigateway-integration:
-        type: "aws_proxy"
         httpMethod: "POST"
         uri: "arn:aws:apigateway:eu-central-1:lambda:path/2015-03-31/functions/arn:aws:lambda:eu-central-1:801154222515:function:status-receive/invocations"
         responses:
@@ -298,11 +449,14 @@ paths:
             statusCode: "200"
         passthroughBehavior: "when_no_match"
         contentHandling: "CONVERT_TO_TEXT"
+        type: "aws_proxy"
+  
   /sigfox/downlink:
     post:
       deprecated: true
       tags:
       - "Sigfox"
+      description: "Reserved for future use."
       operationId: "postSigfoxDownlink"
       responses:
         "401":
@@ -314,60 +468,14 @@ paths:
       security:
       - api_key: []
       x-amazon-apigateway-integration:
-        type: "mock"
         responses:
           default:
             statusCode: "200"
         requestTemplates:
           application/json: "{\"statusCode\": 200}"
         passthroughBehavior: "when_no_match"
-  /android/last:
-    get:
-      tags:
-      - "Android"
-      description: "Get last available status for requested vehicle."
-      parameters:
-      - name: "userId"
-        in: "header"
-        required: true
-        schema:
-          type: "string"
-      - name: "vehicleId"
-        in: "query"
-        required: true
-        schema:
-          type: "string"
-      - name: "User-Agent"
-        in: "header"
-        schema:
-          type: "string"
-      responses:
-        "404":
-          description: "Status for requested vehicleId was not found."
-          content: {}
-        "200":
-          description: "OK"
-          content: {}
-        "401":
-          description: "Unauthorized"
-          content: {}
-        "403":
-          description: "Vehicle Forbidden"
-          content: {}
-      security:
-      - User-Authorizer: []
-      - api_key: []
-      x-amazon-apigateway-request-validator: "Validate query string parameters and\
-        \ headers"
-      x-amazon-apigateway-integration:
-        type: "aws_proxy"
-        httpMethod: "POST"
-        uri: "arn:aws:apigateway:eu-central-1:lambda:path/2015-03-31/functions/arn:aws:lambda:eu-central-1:801154222515:function:get-status-last/invocations"
-        responses:
-          default:
-            statusCode: "200"
-        passthroughBehavior: "when_no_match"
-        contentHandling: "CONVERT_TO_TEXT"
+        type: "mock"
+
 components:
   schemas:
     FcmRegistration:
@@ -380,11 +488,11 @@ components:
           type: "string"
         fcmToken:
           type: "string"
-        state:
+        register:
           type: "boolean"
     VehicleStatus:
       required:
-      - "id"
+      - "timestamp"
       - "vehicleId"
       type: "object"
       properties:
@@ -444,32 +552,34 @@ components:
           format: "int32"
         desired_temperature:
           type: "number"
+  
   securitySchemes:
     User-Authorizer:
       type: "apiKey"
+      description: "Authorizes the user's ownership of the requested vehicle"
       name: "Unused"
       in: "header"
       x-amazon-apigateway-authtype: "custom"
       x-amazon-apigateway-authorizer:
-        type: "request"
         authorizerUri: "arn:aws:apigateway:eu-central-1:lambda:path/2015-03-31/functions/arn:aws:lambda:eu-central-1:801154222515:function:api-authorizer/invocations"
         authorizerResultTtlInSeconds: 0
         identitySource: "method.request.header.userId, method.request.querystring.vehicleId"
+        type: "request"
     api_key:
       type: "apiKey"
       name: "x-api-key"
       in: "header"
+
 x-amazon-apigateway-documentation:
-  version: "1.0"
-  createdDate: "2021-11-14T02:51:31Z"
+  version: "2.0"
+  createdDate: "2021-11-25T18:38:32Z"
   documentationParts:
   - location:
       type: "API"
     properties:
       info:
-        description: "This is an API for cloud backend of EV-IoT-Kit project, part\
-          \ of my Diploma thesis. Server side is running on AWS API Gateway. \n\n\
-          \ More about project at\n[m4rtin195.github.io/EV-IoT-Kit/](https://m4rtin195.github.io/EV-IoT-Kit/)\
+        description: "This is an API for cloud backend of EV-IoT-Kit project. Server\
+          \ side is running on AWS API Gateway. \n\n More about project at\n[m4rtin195.github.io/EV-IoT-Kit/](https://m4rtin195.github.io/EV-IoT-Kit/)\
           \ \n\n Martin Timko, 2021"
         contact:
           email: "martin.timko195@gmail.com"
@@ -484,13 +594,18 @@ x-amazon-apigateway-documentation:
       - name: "Android"
         description: "Endpoints for Android client."
   - location:
+      type: "AUTHORIZER"
+      name: "User-Authorizer"
+    properties:
+      description: "Authorizes the user's ownership of the requested vehicle"
+  - location:
       type: "METHOD"
       path: "/android/fcm-register"
       method: "POST"
     properties:
       tags:
       - "Android"
-      description: "Register the app instance to FCM updates."
+      description: "Registers or unregisters the app instance to FCM updates."
   - location:
       type: "METHOD"
       path: "/android/fcm-unregister"
@@ -498,6 +613,8 @@ x-amazon-apigateway-documentation:
     properties:
       tags:
       - "Android"
+      description: "Deprecated. Use fcm-register with 'register: false' instead. \n\
+        Registers the app instance to FCM updates."
   - location:
       type: "METHOD"
       path: "/android/last"
@@ -505,7 +622,7 @@ x-amazon-apigateway-documentation:
     properties:
       tags:
       - "Android"
-      description: "Get last available status for requested vehicle."
+      description: "Get the last available status for the requested vehicle."
   - location:
       type: "METHOD"
       path: "/android/range"
@@ -513,14 +630,14 @@ x-amazon-apigateway-documentation:
     properties:
       tags:
       - "Android"
-      description: "Get bulk of available statuses for requested vehicle, from requested\
-        \ time range."
+      description: "Get bulk of available statuses for the requested vehicle, from\
+        \ requested time range."
   - location:
       type: "METHOD"
       path: "/online"
       method: "HEAD"
     properties:
-      description: "Check if API is online."
+      description: "For check if API is online."
   - location:
       type: "METHOD"
       path: "/sigfox/downlink"
@@ -528,6 +645,7 @@ x-amazon-apigateway-documentation:
     properties:
       tags:
       - "Sigfox"
+      description: "Reserved for future use."
   - location:
       type: "METHOD"
       path: "/sigfox/uplink"
@@ -552,6 +670,12 @@ x-amazon-apigateway-documentation:
       description: "For obtaining new data directly from the vehicle."
   - location:
       type: "RESPONSE"
+      method: "*"
+      statusCode: "418"
+    properties:
+      description: "Wrong path/method"
+  - location:
+      type: "RESPONSE"
       method: "GET"
       statusCode: "200"
     properties:
@@ -569,7 +693,7 @@ x-amazon-apigateway-documentation:
       method: "POST"
       statusCode: "400"
     properties:
-      description: "400 response"
+      description: "Bad Request"
   - location:
       type: "RESPONSE"
       path: "/android/fcm-register"
@@ -579,25 +703,53 @@ x-amazon-apigateway-documentation:
       description: "Unauthorized"
   - location:
       type: "RESPONSE"
+      path: "/android/fcm-register"
+      method: "POST"
+      statusCode: "403"
+    properties:
+      description: "Vehicle Forbidden"
+  - location:
+      type: "RESPONSE"
+      path: "/android/fcm-register"
+      method: "POST"
+      statusCode: "500"
+    properties:
+      description: "Server Error"
+  - location:
+      type: "RESPONSE"
       path: "/android/fcm-unregister"
       method: "POST"
       statusCode: "200"
     properties:
-      description: "200 response"
+      description: "OK"
   - location:
       type: "RESPONSE"
       path: "/android/fcm-unregister"
       method: "POST"
       statusCode: "400"
     properties:
-      description: "400 response"
+      description: "Bad Request"
   - location:
       type: "RESPONSE"
       path: "/android/fcm-unregister"
       method: "POST"
       statusCode: "401"
     properties:
-      description: "401 response"
+      description: "Unauthorized"
+  - location:
+      type: "RESPONSE"
+      path: "/android/fcm-unregister"
+      method: "POST"
+      statusCode: "403"
+    properties:
+      description: "Vehicle Forbidden"
+  - location:
+      type: "RESPONSE"
+      path: "/android/fcm-unregister"
+      method: "POST"
+      statusCode: "500"
+    properties:
+      description: "Server Error"
   - location:
       type: "RESPONSE"
       path: "/android/last"
@@ -605,6 +757,20 @@ x-amazon-apigateway-documentation:
       statusCode: "200"
     properties:
       description: "OK"
+  - location:
+      type: "RESPONSE"
+      path: "/android/last"
+      method: "GET"
+      statusCode: "204"
+    properties:
+      description: "Status for the requested vehicleId was not found"
+  - location:
+      type: "RESPONSE"
+      path: "/android/last"
+      method: "GET"
+      statusCode: "400"
+    properties:
+      description: "Bad Request"
   - location:
       type: "RESPONSE"
       path: "/android/last"
@@ -623,9 +789,9 @@ x-amazon-apigateway-documentation:
       type: "RESPONSE"
       path: "/android/last"
       method: "GET"
-      statusCode: "404"
+      statusCode: "500"
     properties:
-      description: "Status for requested vehicleId was not found."
+      description: "Server Error"
   - location:
       type: "RESPONSE"
       path: "/android/range"
@@ -637,9 +803,23 @@ x-amazon-apigateway-documentation:
       type: "RESPONSE"
       path: "/android/range"
       method: "GET"
+      statusCode: "204"
+    properties:
+      description: "Statuses for the requested vehicleId or range were not found."
+  - location:
+      type: "RESPONSE"
+      path: "/android/range"
+      method: "GET"
+      statusCode: "400"
+    properties:
+      description: "400 response"
+  - location:
+      type: "RESPONSE"
+      path: "/android/range"
+      method: "GET"
       statusCode: "401"
     properties:
-      description: "Unauthorized"
+      description: "Bad Request"
   - location:
       type: "RESPONSE"
       path: "/android/range"
@@ -651,9 +831,9 @@ x-amazon-apigateway-documentation:
       type: "RESPONSE"
       path: "/android/range"
       method: "GET"
-      statusCode: "404"
+      statusCode: "500"
     properties:
-      description: "Statuses for requested vehicleId were not found."
+      description: "Server Error"
   - location:
       type: "RESPONSE"
       path: "/online"
@@ -679,16 +859,23 @@ x-amazon-apigateway-documentation:
       type: "RESPONSE"
       path: "/sigfox/uplink"
       method: "POST"
-      statusCode: "200"
+      statusCode: "201"
     properties:
-      description: "OK"
+      description: "Successfully wrote into the database and sent to FCM backend"
+  - location:
+      type: "RESPONSE"
+      path: "/sigfox/uplink"
+      method: "POST"
+      statusCode: "207"
+    properties:
+      description: "Partially failed, check body for more details"
   - location:
       type: "RESPONSE"
       path: "/sigfox/uplink"
       method: "POST"
       statusCode: "400"
     properties:
-      description: "Parsing error"
+      description: "Bad Request"
   - location:
       type: "RESPONSE"
       path: "/sigfox/uplink"
@@ -696,6 +883,13 @@ x-amazon-apigateway-documentation:
       statusCode: "401"
     properties:
       description: "Unauthorized"
+  - location:
+      type: "RESPONSE"
+      path: "/sigfox/uplink"
+      method: "POST"
+      statusCode: "500"
+    properties:
+      description: "Server Error"
   - location:
       type: "RESPONSE"
       path: "/test"
@@ -707,16 +901,23 @@ x-amazon-apigateway-documentation:
       type: "RESPONSE"
       path: "/wlan"
       method: "POST"
-      statusCode: "200"
+      statusCode: "201"
     properties:
-      description: "OK"
+      description: "Successfully wrote into the database and sent to FCM backend"
+  - location:
+      type: "RESPONSE"
+      path: "/wlan"
+      method: "POST"
+      statusCode: "207"
+    properties:
+      description: "Partially failed, check body for more details"
   - location:
       type: "RESPONSE"
       path: "/wlan"
       method: "POST"
       statusCode: "400"
     properties:
-      description: "Parsing error"
+      description: "Bad Request"
   - location:
       type: "RESPONSE"
       path: "/wlan"
@@ -724,6 +925,21 @@ x-amazon-apigateway-documentation:
       statusCode: "401"
     properties:
       description: "Unauthorized"
+  - location:
+      type: "RESPONSE"
+      path: "/wlan"
+      method: "POST"
+      statusCode: "500"
+    properties:
+      description: "Server Error"
+  - location:
+      type: "RESPONSE"
+      path: "/{proxy+}"
+      method: "*"
+      statusCode: "418"
+    properties:
+      description: "Wrong path/method"
+
 x-amazon-apigateway-request-validators:
   Validate body, query string parameters, and headers:
     validateRequestParameters: true
