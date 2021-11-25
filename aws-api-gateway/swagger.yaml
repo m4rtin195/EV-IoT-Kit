@@ -310,12 +310,9 @@ paths:
       description: "Used for testing."
       operationId: "postTest"
       responses:
-        "200":
-          description: "..."
-          content: {}
-        "418":
-          description: "Wrong path/method"
-          content: {}
+          "200":
+            description: "..."
+            content: {}
       security:
       - User-Authorizer: []
       x-amazon-apigateway-integration:
