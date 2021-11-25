@@ -14,7 +14,7 @@ exports.handler = async function(event, context, callback)
     }
     
     let qsp = event.queryStringParameters;
-    if(!qsp.vehicleId || !qsp.from || !qsp.to) 
+    if(!qsp.vehicleId || !qsp.timeFrom || !qsp.timeTo) 
     {
         console.error("Missing basic attributes");
         lambda_reply.body = JSON.stringify({"Error": "Missing basic attributes"}, null, 2);
@@ -33,7 +33,7 @@ exports.handler = async function(event, context, callback)
         }
         else
         {
-            lambda_reply.statusCode = 402;
+            lambda_reply.statusCode = 204;
             callback(null, lambda_reply);
         }
     }).catch((err) => console.error(err));
