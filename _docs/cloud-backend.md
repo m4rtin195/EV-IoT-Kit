@@ -12,11 +12,12 @@ Totally 3 clouds/services are participating in this project:
 
 ### AWS
 **Amazon Web Services** is the main one.  
-An `API Gateway` component is used to create the REST API. Its documentation can be found <a href="https://app.swaggerhub.com/apis-docs/martin195/EV-IoT-Kit/" target="_blank">on SwaggerHub</a>. Using it, new messages from endpoint devices can be uploaded, either directly from the device (if WLAN connectivity is used) or from Sigfox Cloud, and Android app instances can (un)register their tokens, using which they are addressed about assigned vehicles updates. In all cases, authorization using different <u>API keys</u> is required. 
+An `API Gateway` component is used to create the REST API. Its documentation can be found <a href="https://app.swaggerhub.com/apis-docs/martin195/EV-IoT-Kit/" target="_blank">on SwaggerHub UI</a>.  
+Using it, new messages from endpoint devices can be uploaded, either directly from the device (if WLAN connectivity is used) or from Sigfox Cloud, and Android app instances can fetch the last available status or range of statuses for requested vehicle, and (un)register their tokens, using which they are addressed about assigned vehicles updates. In all cases, authorization using different <u>API keys</u> is required, and where's relevant, <u>access rights</u> (the ownership of requested vehicle) is evaluated using *Authorizer* mechanism on API calls.
 
-The API methods invoke `Lambda functions`, written in <u>JavaScript</u>, which processes the given request. If a new vehicle update is received, it is stored to `DynamoDB`, what is a document-oriented <u>NoSQL</u> database. If the limit of saved statuses per that vehicle is reached, the oldest ones are deleted. The statuses are saved in originally received JSON format and are internally divided into database partitions according to the *vehicle’s ID*. Another Lambda function is triggered to find if there’s a client app instance assigned to the vehicle, from which the update came from. The assignments are also saved in DynamoDB, in a simple key-value pair table. 
+The API methods invoke `Lambda functions`, written in <u>JavaScript</u>, which processes the given request. If a new vehicle update is received, it is stored to `DynamoDB`, what is a document-oriented <u>NoSQL</u> database. If the limit of saved statuses per that vehicle is reached, the oldest ones are deleted. Statuses are saved in originally received JSON format and are internally divided into database partitions according to the *vehicle’s ID*. Another Lambda function is triggered to find, if there’s a client app instance ID assigned to the vehicle, from which the update came from. These assignments are also saved in DynamoDB, in a simple key-value pair table. 
 
-If a match(es) are found, the status is finally forwarded to `SNS` (Simple Notification Service) component, which pushes them to *Google’s FCM endpoint*. 
+If match(es) are found, the user can have more devices, the status is finally ~~forwarded to `SNS` (Simple Notification Service) component~~ sent to *Google’s FCM endpoint*[^1].  
 There are ofc also more lambda functions to process other requests from API, e.g. asking for the last status of a given device, a bunch of them for history view in app, etc.
 
 ### Google Firebase
@@ -25,4 +26,8 @@ There are ofc also more lambda functions to process other requests from API, e.g
 <br>
 
 <u>A small note:</u>  
-Google Firebase is actually a “subproduct” of *Google Cloud Platform* (GCP) - Google’s own public cloud, which is a direct competitor to AWS. Outwardly, Firebase looks to work independently, but under the hood it uses components of GCP. Therefore, the whole backend of our system could be potentially hosted in GCP instead of AWS, what could make communication with the client app more elegant, and pricing and managing of cloud services simpler. 
+Google Firebase is actually a “subproduct” of *Google Cloud Platform* (GCP) - Google’s own public cloud, which is a direct competitor to AWS. Outwardly, Firebase looks to work independently, but under the hood it uses components of GCP. Therefore, the whole backend of our system could be potentially hosted in GCP instead of AWS, what could make communication with the client app more elegant, and pricing and managing of cloud services simpler. Vice-versa, AWS also offers a competitor service to Firebase - *AWS Amplify*.
+
+<br>
+
+[^1]: We have changed it to raw send to their new HTTP v1 API, cause we found AWS SNS is kinda cumbersome for this use case.

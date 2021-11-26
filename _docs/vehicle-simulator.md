@@ -4,7 +4,7 @@ permalink: /docs/vehicle-simulator/
 ---
 
 <div style="display: flex; flex-flow: row wrap; justify-content:center">
-	<div style="flex-grow:1; flex-basis:55%;">
+	<div style="flex-grow:1; flex-basis:60%;">
 		<p>The first component of the system is the simulator of electric-vehicle, respectively, of its <b>telematics unit</b> (<abbr title="Telematics Control Unit">TCU</abbr>), which is built on <code>Raspberry Pi 4B</code>. The microcomputer is housed in a box with a small touchscreen, inside which is also the Sigfox communication module connected to the <code>UART</code> interface, including a small antenna, and <code>BMP280</code> temperature sensor, connected to the <code>I2C</code> bus.</p>
 		<p>The <code>Raspberry Pi OS</code> runs an application written in <code>C++</code> and the <code>Qt framework</code>, using which the GUI for simulator control is created.  Internally, the application consists from 4 components:
 		<ul>
@@ -14,8 +14,8 @@ permalink: /docs/vehicle-simulator/
 			<li><b>Logger</b></li>
 		</ul></p>
 	</div>
-	<div style="flex-grow:0; flex-basis:45%; min-width:300px;">
-    	<a href="{{ "/assets/img/docs/simulator.png" | relative_url }}" data-lightbox="img"><img src="{{ "/assets/img/docs/simulator.png" | relative_url }}" alt="simulator device" style="max-width:100%; margin-top:10px; margin-left:15px;"></a>
+	<div style="flex-grow:0; flex-basis:40%; min-width:300px; margin-top:-5px">
+    	<a href="{{ "/assets/img/docs/simulator.png" | relative_url }}" data-lightbox="img"><img src="{{ "/assets/img/docs/simulator.png" | relative_url }}" alt="simulator device" style="max-width:100%; padding-left:10px; padding-right:10px;"></a>
   </div>
 </div>
 
@@ -34,7 +34,8 @@ The “broadcasting” to the cloud backend is possible by 2 ways:
 - through <b><u><a href="{{ "/docs/sigfox/" | relative_url }}">Sigfox</a></u></b> technology - modern IoT, LPWAN 
 network, of which network is available on wide areas worldwide.
 
-The idea behind this is, that WLAN connectivity can be used when the vehicle is located at the brand’s own or partners charging stations, where the vehicle is able to automatically connect to a <u>secure</u>, local Wi-Fi network (be aware that *Wi-Fi* doesn't have to be only 802.11b/g/n! ([see wikipedia](https://en.wikipedia.org/wiki/IEEE_802.11))). The other scenario is when the owner is charging his vehicle at home.  
+The idea behind this is, that WLAN connectivity can be used when the vehicle is located at the brand’s own or partners charging stations, where the vehicle is able to automatically connect to a <u>secure</u>, local Wi-Fi network (be aware that *Wi-Fi* doesn't have to be only 802.11b/g/n! ([see wikipedia](https://en.wikipedia.org/wiki/IEEE_802.11))). The other scenario is when the owner is charging his vehicle at home. For network requests, `Qt Network` module is used.
+
 In other cases, when a local network is not available, Sigfox is used. In this case, the message is compressed into a 12B long packet (this is the maximum length for Sigfox payload) using bit-shifts and converting `floats`  into `half` data type. Using this, we can fit 9 values into this 12 bytes long packet. 
 The content of the message is like this:
 
@@ -123,7 +124,7 @@ The content of the message is like this:
 	</tbody>
 </table>
 
-These are not all parameters that the application simulates/vehicle’s TCU can provide. The rest of them (*location coordinates, desired temperature set for AC, maximal charging current, vehicle’s consumption, etc.*) can be sent as another packet with “extended” values, or can be sent only if WLAN connectivity is available. This part is not finished and the possible solution is opened.
+These are not all parameters that the application simulates/vehicle’s TCU can provide. The rest of them (*location coordinates, desired temperature set for AC, maximal charging current, fuel/electric consumption,* etc.) can be sent as another packet with “extended” values, or can be sent only if WLAN connectivity is available. This part is not finished and the possible solution is opened.
 After preparing the packet, it is sent to the serial port, where the communication module is connected. The module is controlled and configured using `AT commands`.
 
 It’s needed to keep in mind, that Sigfox has a limitation in the number of messages that can be sent from one device in one day, so the broadcasting interval should be adjusted. In the case of WLAN connectivity available, the actual status can be reported to the cloud on a second basis. This configuration can be set in macros of components header files. 

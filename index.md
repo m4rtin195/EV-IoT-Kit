@@ -5,7 +5,7 @@ layout: default
 <div class="header-container jumbotron">
     <div class="container">
         <h1>IoT connection Kit for modern Electric Vehicles</h1>
-        <p>Universal and modular full-stack system for connecting EV's or any other vehicles to the cloud and to their owners, using a mobile application as its control interface.</p>
+        <p>Universal and modular full-stack system for connecting EVs or any other vehicles to the cloud and to their owners, using a mobile application as its control interface.</p>
         <p><a class="btn btn-primary btn-lg" style="margin-top: 8px" href="{{ "/docs/inshort/" | relative_url }}" role="button">Learn more</a></p>
     </div>
 </div>

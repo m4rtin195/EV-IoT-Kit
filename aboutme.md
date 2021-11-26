@@ -25,7 +25,7 @@ sectionid: aboutme
     </div>
   </div>
 
-  <p class="bigger-margin">I’m really excited about all the new technologies, and the possibilities they give us to explore in this fast-changing world. I want to work on projects which will help to make cities more efficient, on ones, that will truly allow people to have more time, while experiencing the excitement of the tech world.</p>
+  <p class="bigger-margin">I’m really excited about all new technologies, and possibilities they give us to explore in this fast-changing world. I want to work on projects which will help to make cities more efficient, on ones, that will truly allow people to have more time, while experiencing the excitement of the tech world.</p>
 
   <p class="">But also, I hate placing “smart” stickers on everything, just because it has a display. I believe that smart things should truly allow people to feel more comfortable or save their time, not to require them to set something up for 20 minutes just to get a notification that the washer machine finished its work. Want to know what else would I do? Write me an email!</p>
 
