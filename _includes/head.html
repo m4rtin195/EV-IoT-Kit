@@ -11,10 +11,9 @@
 
     <link rel="alternate" type="application/rss+xml" title="{{ site.title }}" href="{{ "/feed.xml" | absolute_url }}" />
 
-    {% assign document_url = document | prepend:"/docs/" | append:"/" %}
+    {% seo %}
+
     {% if page.url == "/" %}
     <meta property="og:title" content="IoT connection Kit for modern Electric Vehicles" />
     {% endif %}
-
-    {% seo %}
 </head>
