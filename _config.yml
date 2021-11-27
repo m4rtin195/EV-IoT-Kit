@@ -5,9 +5,8 @@ description: "" #>
 #   Personal project from my diploma thesis
 lang: en-US
 
-url: https://m4rtin195.github.io/EV-IoT-Kit/ # the base hostname & protocol for your site
-git_address: https://github.com/m4rtin195/EV-IoT-Kit/
-git_edit_address: about:blank
+url: https://m4rtin195.github.io # the base hostname & protocol for your site
+git_address: https://github.com/m4rtin195/EV-IoT-Kit
 
 # Configure the remote_theme plugin with the gh-pages branch
 # or the specific tag
@@ -43,7 +42,6 @@ defaults:
   values:
     layout: post
     sectionid: blog
-
 - scope:
     path: _docs
     type: docs
@@ -52,6 +50,10 @@ defaults:
     sectionid: docs
     seo:
       type: "WebPage"
+- scope:
+    path: ""
+  values:
+    image: /assets/img/ev1.jpg
 
 collections:
   docs:

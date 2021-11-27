@@ -1,5 +1,6 @@
 ---
 layout: default
+title: "toto je title"
 ---
 
 <div class="header-container jumbotron">
