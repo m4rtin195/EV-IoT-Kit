@@ -1,6 +1,6 @@
 ---
 layout: default
-title: "toto je title"
+description: "Universal and modular full-stack system for connecting EVs or any other vehicles to the cloud and to their owners, using a mobile application as its control interface. <br><br>&nbsp; \n &#10; Practical part of my diploma thesis."
 ---
 
 <div class="header-container jumbotron">
