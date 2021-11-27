@@ -1,8 +1,7 @@
 # Site settings
 title: EV-IoT-Kit
 email: martin.timko195@gmail.com
-description: "" #>
-#   Personal project from my diploma thesis
+description: ""
 lang: en-US
 
 url: https://m4rtin195.github.io # the base hostname & protocol for your site
