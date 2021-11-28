@@ -14,7 +14,7 @@ exports.handler = async function(event, context, callback)
     }
     
     let qsp = event.queryStringParameters;
-    if(!qsp.vehicleId || !qsp.timeFrom || !qsp.timeTo) 
+    if(!qsp.vehicleId || !qsp.timeFrom || !qsp.timeTo)
     {
         console.error("Missing basic attributes");
         lambda_reply.body = JSON.stringify({"Error": "Missing basic attributes"}, null, 2);
@@ -23,9 +23,9 @@ exports.handler = async function(event, context, callback)
     }
     
     //read from DynamoDB
-    await readDocument(qsp.vehicleId, qsp.from, qsp.to).then(data =>
+    await readDocument(qsp.vehicleId, qsp.timeFrom, qsp.timeTo).then(data =>
     {
-        if(data.Items)
+        if(data.Count>0)
         {
             lambda_reply.body = JSON.stringify(data.Items, null, 2);
             lambda_reply.statusCode = 200;
