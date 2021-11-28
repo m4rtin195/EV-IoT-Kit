@@ -5,14 +5,13 @@ const dbTableName = "vehicle-registrations";
 
 exports.handler = async function(event)
 {
-    console.log("event")
-    console.log(event)
-    
     //causes case-sensitive errors but http headers are case insensitive, and this case anyway cannot happen because api gateway check requirements
     /*if(!(event.headers.hasOwnProperty('userId') && event.queryStringParameters.hasOwnProperty('vehicleId')))
         throw Error(400);*/ 
     
-    let userId = event.headers.userId;
+    const keyname = Object.keys(event.headers).find(key => key.toLowerCase() === 'userId'.toLowerCase());
+    
+    let userId = event.headers[keyname];
     let vehicleId = event.queryStringParameters.vehicleId;
     
     let policy;
