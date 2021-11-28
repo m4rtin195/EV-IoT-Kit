@@ -5,8 +5,12 @@ const dbTableName = "vehicle-registrations";
 
 exports.handler = async function(event)
 {
-    if(!(event.headers.hasOwnProperty('userId') && event.queryStringParameters.hasOwnProperty('vehicleId')))
-        throw Error(400);
+    console.log("event")
+    console.log(event)
+    
+    //causes case-sensitive errors but http headers are case insensitive, and this case anyway cannot happen because api gateway check requirements
+    /*if(!(event.headers.hasOwnProperty('userId') && event.queryStringParameters.hasOwnProperty('vehicleId')))
+        throw Error(400);*/ 
     
     let userId = event.headers.userId;
     let vehicleId = event.queryStringParameters.vehicleId;
