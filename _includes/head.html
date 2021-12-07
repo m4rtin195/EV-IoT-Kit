@@ -12,6 +12,10 @@
     <link rel="alternate" type="application/rss+xml" title="{{ site.title }}" href="{{ "/feed.xml" | absolute_url }}" />
 
     {% seo %}
+    
+    {% if jekyll.environment == 'production' %}
+    {% include analytics.html %}
+    {% endif %}
 
     {% if page.url == "/" %}
     <meta property="og:title" content="IoT connection Kit for modern Electric Vehicles" />

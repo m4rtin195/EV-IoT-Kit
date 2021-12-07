@@ -17,7 +17,7 @@ sectionid: aboutme
 
   <div class="bigger-margin" style="display:flex; flex-flow:row wrap-reverse; justify-content:center">
     <div style="flex-grow:1; flex-basis:75%">
-      <p class="bigger-margin">Hey, I'm Martin! I am a fresh graduate in the IT field, with a love for IoT, SmartHome, and Multimedia technologies. Worked in another amazing field during the university, so maybe not so experienced, but my strong enthusiasm helps me to catch up on it.</p>
+      <p class="bigger-margin">Hey, I'm Martin! I am a fresh graduate in the IT field, with a love for IoT, SmartHome, and Multimedia technologies. Worked in other amazing field during the university so maybe not so experienced, but my strong enthusiasm helps me to catch up on it.</p>
       <p class="bigger-margin">I have studied at the University of Zilina, in the beautiful, same-called city in the north of <a href="https://www.youtube.com/watch?v=fbkEmW6PlXs/" target="_blank" class="no-lightbox">Slovakia</a>, but have also been in Portugal and Lithuania for a while.</p>
     </div>
     <div style="flex-grow:0; flex-basis:25%; min-width:200px; margin-top:-15px; padding-left:15px; padding-right:15px; margin-bottom:20px;">
@@ -25,9 +25,9 @@ sectionid: aboutme
     </div>
   </div>
 
-  <p class="bigger-margin">I’m really excited about all new technologies, and possibilities they give us to explore in this fast-changing world. I want to work on projects which will help to make cities more efficient, on ones, that will truly allow people to have more time, while experiencing the excitement of the tech world.</p>
+  <p class="bigger-margin">I’m really excited about all new technologies, and the possibilities they give us to explore in this fast-changing world. I want to work on projects which will help to make cities more efficient, on ones, that will allow people to have more time in their smart household, while experiencing the excitement of the tech world.</p>
 
-  <p class="">But also, I hate placing “smart” stickers on everything, just because it has a display. I believe that smart things should truly allow people to feel more comfortable or save their time, not to require them to set something up for 20 minutes just to get a notification that the washer machine finished its work. Want to know what else would I do? Write me an email!</p>
+  <p class="">But also, I hate placing “smart” stickers on everything, just because it has a display. I believe that smart things should truly allow people to feel more comfortable or save their time, not to require them to set something up for 20 minutes just to get a notification that the washing machine finished its work. Want to know what else would I do? Write me an email!</p>
 
   <br>
   <div style="display:flex; flex-flow:row wrap; justify-content:center; gap: 12px">

@@ -6,11 +6,11 @@ permalink: /docs/vehicle-simulator/
 <div style="display: flex; flex-flow: row wrap; justify-content:center">
 	<div style="flex-grow:1; flex-basis:60%;">
 		<p>The first component of the system is the simulator of electric-vehicle, respectively, of its <b>telematics unit</b> (<abbr title="Telematics Control Unit">TCU</abbr>), which is built on <code>Raspberry Pi 4B</code>. The microcomputer is housed in a box with a small touchscreen, inside which is also the Sigfox communication module connected to the <code>UART</code> interface, including a small antenna, and <code>BMP280</code> temperature sensor, connected to the <code>I2C</code> bus.</p>
-		<p>The <code>Raspberry Pi OS</code> runs an application written in <code>C++</code> and the <code>Qt framework</code>, using which the GUI for simulator control is created.  Internally, the application consists from 4 components:
+		<p>The <code>Raspberry Pi OS</code> runs an application written in <code>C++</code> and the <code>Qt framework</code>, using which the GUI for simulator control is created.  Internally, the application consists of 4 components:
 		<ul>
 			<li><b>GUI</b></li>
 			<li><b>Simulator</b></li>
-			<li><b>Braodacaster</b></li>
+			<li><b>Broadcaster</b></li>
 			<li><b>Logger</b></li>
 		</ul></p>
 	</div>
@@ -26,10 +26,10 @@ GUI consists of a few simple elements and is designed for small touch display - 
 The application is executed using a `systemd` service upon system boot, and is launched in a fullscreen mode.
 
 ### Simulation
-The simulation process is made by mathematical logarithmic equations which imitate the process of real accumulator charging - from fast increasing in a lower charge levels, to very slow increasing close to full charge, also depending on the charging current. As the reference, the charging curve of the *Tesla Model S* with 85kWh battery was used, on a conventional “slow” charger with 50A DC current and on *Tesla Supercharger* stations, with 300A DC current. Equation parameters for currents between these values are calculated in a linear scale.
+The simulation process is made by mathematical logarithmic equations which imitate the process of real accumulator charging - from a rapid increase in lower charge levels, to a very slow increase close to full charge, also depending on the charging current. As the reference, the charging curve of the *Tesla Model S* with 85kWh battery was used, on a conventional “slow” charger with 50A DC current and on *Tesla Supercharger* stations, with 300A DC current. Equation parameters for currents between these values are calculated in a linear scale.
 
 ### Broadcasting
-The “broadcasting” to the cloud backend is possible by 2 ways: 
+The “broadcasting” to the cloud backend is possible in 2 ways: 
 - through <b><u>WLAN</u></b> - standard HTTP calls to backend API, over Raspberry’s network connectivity.
 - through <b><u><a href="{{ "/docs/sigfox/" | relative_url }}">Sigfox</a></u></b> technology - modern IoT, LPWAN 
 network, of which network is available on wide areas worldwide.

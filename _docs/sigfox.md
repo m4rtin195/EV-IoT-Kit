@@ -39,6 +39,6 @@ The topic of Sigfox is widely covered in my diploma thesis (Slovak only).
 <br>
 <br>
 
-[^1]: To be exact, more regions with different radio configurations exists around the globe, and not all modems supports more, or all of them. But there are also those who do, and switching between them is automatic. Search for *Sigfox Monarch*.
+[^1]: To be exact, more regions with different radio configurations exists around the globe, and not all modems support more, or all of them. But there are also those who do, and switching between them is fully automatic. Search for *Sigfox Monarch*.
 
 [^2]: or 600Hz in some radio-configuration regions.
