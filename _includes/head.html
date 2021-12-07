@@ -14,14 +14,14 @@
     {% if page.url == "/" %}
     <meta property="og:title" content="IoT connection Kit for modern Electric Vehicles" />
     {% endif %}
-    
+
     {% seo %}
     
-    {% if jekyll.environment == 'production' %}
-    {% include analytics.html %}
-    {% endif %}
-
     {% if page.url == "/" %}
     <meta property="og:title" content="IoT connection Kit for modern Electric Vehicles" />
+    {% endif %}
+
+    {% if jekyll.environment == 'production' %}
+    {% include analytics.html %}
     {% endif %}
 </head>
