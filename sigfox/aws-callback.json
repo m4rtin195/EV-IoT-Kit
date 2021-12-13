@@ -21,7 +21,7 @@
 	    "seqNumber": "${seqNumber}",
 	    "rawdata": "'${data}'",
 	    "advanced": false,
-	    "connectivity": 2,
+	    "connectivity": 1,
 	  
 	  	"state": "${customData#state}",
 	  	"current_charge": "${customData#current_charge}",
