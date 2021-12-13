@@ -10,7 +10,8 @@ var lambda_reply = {headers: {'Content-Type': 'application/json', 'Access-Contro
 
 exports.handler = async function(event, context, main_callback)
 {
-    console.log(event);
+    //console.log(event);
+    
     /// REQUEST CHECK /// 
     if(!event.hasOwnProperty('body'))
     {
@@ -42,6 +43,8 @@ exports.handler = async function(event, context, main_callback)
     
     /// PROCESS STATUS TYPE///
     //set advanced to true etc. ?  // TODO
+    if(vStatus.connectivity == 1) //sigfox
+        vStatus.timestamp *= 1000;
     
     /// DECODING ///
     //convert halfs to floats
@@ -99,7 +102,7 @@ exports.handler = async function(event, context, main_callback)
     }
     
     // END, return reply ///
-    console.log(lambda_reply)
+    //console.log(lambda_reply)
     main_callback(null, lambda_reply);
 };
 
