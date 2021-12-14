@@ -15,7 +15,7 @@ permalink: /docs/android-app/
 			<li>Viewing the vehicle <b>location and map</b> of the surrounding</li>
 		</ol>
 		<br>
-		<p>We have created a native app for Android OS, written in <code>Java</code>, also with help of Google Firebase for some features. We tried to follow Google’s recommended design patterns, for example, the whole app is designed as <b>Single-Activity</b> (except login screen), with <code>Fragments</code> switching within it. Internally, we used the <b>MVVM architecture</b> with help of <code>ViewModels</code> and <code>LiveData</code>, as well as many other components from the <code>Android Jetpack</code> library. For easier communication between GUI components and the logical layer, a <code>View-binding</code> mechanism is used.</p>
+		<p>We have created a native app for Android OS, written in <code>Java</code>, also with help of Google Firebase for some features. We tried to follow Google’s recommended design patterns, for example, the whole app is designed as <b>Single-Activity</b> (except login screen), with <code>Fragments</code> switching within it. Internally, we used the <b>MVVM architecture</b> with help of <code>ViewModels</code> and <code>LiveData</code>, as well as many other components from the <code>Android Jetpack</code> library. For easier communication between GUI components and the logical layer, the <code>View-binding</code> mechanism is used.</p>
 	</div>
 	<div style="flex-grow:0; flex-basis:35%; padding-top:0px; padding-left:20px; padding-right:20px; min-width:230px">
 		<a href="{{ "/assets/img/docs/app1_full.jpg" | relative_url }}" data-lightbox="app-screens">
